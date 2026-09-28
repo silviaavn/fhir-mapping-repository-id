@@ -5,10 +5,9 @@ Konsolidasi seluruh playbook interoperabilitas SATUSEHAT beserta lampiran termin
 Di situs resminya, playbook dan lampiran terminologi terpisah halaman dan formatnya berulang. Repo ini menyatukannya, lalu menambahkan lapisan crosscheck: variabel yang sama di beberapa use case dipasangkan, perbedaan nilainya dijelaskan per elemen, dan setiap resource FHIR diringkas (elemen apa yang biasanya ada, kode apa yang dipakai, kode mana dari Lampiran Standar Terminologi yang belum dipakai playbook mana pun).
 
 ## Buka halamannya
-
 | Cara | Untuk siapa |
 |---|---|
-| **GitHub Pages** — `https://<user>.github.io/satusehat-playbook-crosscheck/` | Siapa pun. Semua tampilan jalan (per use case, Konsolidasi, Ringkasan Resource, Dokumentasi, pencarian). Tombol "Revisi" hanya bisa dibaca, tidak bisa menyimpan. |
+| **GitHub Pages** — https://silviaavn.github.io/fhir-mapping-repository-id/ | Siapa pun. Semua tampilan jalan (per use case, Konsolidasi, Ringkasan Resource, Dokumentasi, pencarian). Tombol Revisi hanya bisa dibaca, tidak bisa menyimpan. |
 | **Halaman di Claude** (privat, lihat CONTRIBUTING) | Kontributor yang ingin menyimpan usulan revisi. |
 | `data/SATUSEHAT_Semua_UseCase_Crosscheck.xlsx` | Yang lebih nyaman bekerja di Excel. |
 
