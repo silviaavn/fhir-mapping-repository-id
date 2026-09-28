@@ -1,0 +1,897 @@
+{
+"pendidikan": {
+"title": "Lampiran 1 — Pendidikan (Observation.valueCodeableConcept)",
+"cols": [
+"system",
+"code",
+"display",
+"Pilihan jawaban / keterangan"
+],
+"rows": [
+[
+"http://snomed.info/sct",
+"224304004",
+"Not receiving education",
+"Tidak Pernah Sekolah"
+],
+[
+"http://snomed.info/sct",
+"473463000",
+"Received elementary school education",
+"SD/Sederajat"
+],
+[
+"http://snomed.info/sct",
+"603435002",
+"Educated to junior high school level",
+"SMP/Sederajat"
+],
+[
+"http://snomed.info/sct",
+"603434003",
+"Educated to senior high school level",
+"SMA/Sederajat"
+],
+[
+"http://snomed.info/sct",
+"224299000",
+"Received higher education",
+"Akademi/Perguruan Tinggi/Sederajat"
+]
+]
+},
+"pekerjaan": {
+"title": "Lampiran 2 — Pekerjaan (Observation.valueCodeableConcept)",
+"cols": [
+"system",
+"code",
+"display",
+"Pilihan jawaban / keterangan"
+],
+"rows": [
+[
+"http://terminology.kemkes.go.id",
+"TK000030",
+"Turis",
+"Turis"
+],
+[
+"http://snomed.info/sct",
+"106333009",
+"Manager",
+"Manager/Eksekutif"
+],
+[
+"http://terminology.kemkes.go.id",
+"TK000040",
+"Tenaga profesional non medis",
+"Tenaga profesional non medis"
+],
+[
+"http://snomed.info/sct",
+"223366009",
+"Healthcare professional",
+"Tenaga profesional medis"
+],
+[
+"http://terminology.kemkes.go.id",
+"TK000041",
+"Pegawai/ karyawan swasta",
+"Pegawai/ karyawan swasta"
+],
+[
+"http://snomed.info/sct",
+"160906004",
+"Self-employed",
+"Wiraswasta/usaha sendiri"
+],
+[
+"http://snomed.info/sct",
+"159062006",
+"Artist",
+"Seniman/artis/aktor/ pengrajin"
+],
+[
+"http://snomed.info/sct",
+"106388008",
+"Farmer",
+"Petani"
+],
+[
+"http://snomed.info/sct",
+"106540006",
+"Laborer",
+"Buruh Kasar"
+],
+[
+"http://snomed.info/sct",
+"40045004",
+"Military services member of ground forces",
+"TNI"
+],
+[
+"http://snomed.info/sct",
+"236297007",
+"Civil servant",
+"Pegawai Negeri Sipil (PNS)"
+],
+[
+"http://snomed.info/sct",
+"449344001",
+"Sex worker",
+"Penjaja Seks"
+],
+[
+"http://snomed.info/sct",
+"105568001",
+"In prison",
+"Narapidana"
+],
+[
+"http://terminology.kemkes.go.id",
+"TK000042",
+"Pelaut",
+"Pelaut"
+],
+[
+"http://snomed.info/sct",
+"236320001",
+"Vehicle driver",
+"Sopir"
+],
+[
+"http://snomed.info/sct",
+"308040008",
+"Pilot - aircraft",
+"Pilot"
+],
+[
+"http://snomed.info/sct",
+"444168002",
+"Homemaker",
+"Ibu Rumah Tangga"
+],
+[
+"http://snomed.info/sct",
+"65853000",
+"Student",
+"Anak Sekolah/ Mahasiswa"
+],
+[
+"http://snomed.info/sct",
+"73438004",
+"Unemployed",
+"Tidak bekerja"
+],
+[
+"http://snomed.info/sct",
+"74964007",
+"Other",
+"Lain-lain"
+],
+[
+"http://snomed.info/sct",
+"106400003",
+"Fisherman",
+"Nelayan"
+],
+[
+"http://snomed.info/sct",
+"52060003",
+"Livestock farmer",
+"Peternak"
+],
+[
+"http://snomed.info/sct",
+"14406004",
+"Policeman",
+"POLRI"
+],
+[
+"http://snomed.info/sct",
+"308208002",
+"Steward",
+"Pramugara/ Pramugari"
+]
+]
+},
+"keluhan": {
+"title": "Lampiran 3 — Keluhan (Condition.code)",
+"cols": [
+"system",
+"code",
+"display",
+"Pilihan jawaban / keterangan"
+],
+"rows": [
+[
+"http://snomed.info/sct",
+"271939006",
+"Vaginal discharge",
+"Duh tubuh"
+],
+[
+"http://snomed.info/sct",
+"267802000",
+"Pruritus of genital organs",
+"Gatal"
+],
+[
+"http://snomed.info/sct",
+"49650001",
+"Dysuria",
+"Kencing sakit"
+],
+[
+"http://snomed.info/sct",
+"21522001",
+"Abdominal pain",
+"Nyeri perut"
+],
+[
+"http://snomed.info/sct",
+"283096002",
+"Scratch of genitalia",
+"Lecet"
+],
+[
+"http://snomed.info/sct",
+"339008",
+"Blister",
+"Bintil sakit"
+],
+[
+"http://snomed.info/sct",
+"56208002",
+"Ulcer",
+"Luka/ulkus"
+],
+[
+"Tidak ada",
+"Tidak ada",
+"Tidak ada",
+"Lainnya"
+]
+]
+},
+"populasi": {
+"title": "Lampiran 4 — Kelompok populasi (Observation.component.code)",
+"cols": [
+"system",
+"code",
+"display",
+"Pilihan jawaban / keterangan"
+],
+"rows": [
+[
+"http://snomed.info/sct",
+"449344001",
+"Sex worker",
+"WPS (wanita pekerja seks)"
+],
+[
+"http://snomed.info/sct",
+"226034001",
+"Injecting drug user",
+"Penasun"
+],
+[
+"http://snomed.info/sct",
+"255409004",
+"Pregnant woman",
+"Ibu Hamil"
+],
+[
+"http://snomed.info/sct",
+"56717001",
+"Tuberculosis",
+"Penyakit TB"
+],
+[
+"http://snomed.info/sct",
+"8098009",
+"Sexually transmitted infectious disease (disorder)",
+"Penyakit IMS"
+],
+[
+"http://snomed.info/sct",
+"128241005",
+"Inflammatory disease of liver",
+"Penyakit Hepatitis"
+],
+[
+"http://terminology.kemkes.go.id",
+"Pasangan ODHIV",
+"TK000036",
+"Pasangan ODHIV"
+],
+[
+"http://terminology.kemkes.go.id",
+"Pasangan Risti",
+"TK000037",
+"Pasangan Risti"
+],
+[
+"http://terminology.kemkes.go.id",
+"Anak ODHIV",
+"TK000038",
+"Anak ODHIV"
+],
+[
+"http://snomed.info/sct",
+"105568001",
+"In prison",
+"WBP (Warga Binaan Pemasyarakatan)"
+],
+[
+"http://snomed.info/sct",
+"54986009",
+"Engaged to be married",
+"Calon Pengantin"
+],
+[
+"http://snomed.info/sct",
+"788159003",
+"Client of prostitutes",
+"Pelanggan PS"
+],
+[
+"http://terminology.kemkes.go.id",
+"Waria",
+"TK000035",
+"Waria"
+],
+[
+"http://snomed.info/sct",
+"472986005",
+"Sexually active with men",
+"LSL"
+],
+[
+"http://terminology.kemkes.go.id",
+"Populasi Umum",
+"TK000039",
+"Populasi Umum"
+]
+]
+},
+"penyakit": {
+"title": "Lampiran 5 — Penyakit terkait pasien (Condition.code)",
+"cols": [
+"system",
+"code",
+"display",
+"Pilihan jawaban / keterangan"
+],
+"rows": [
+[
+"http://snomed.info/sct",
+"427099000",
+"Active tuberculosis",
+"TB"
+],
+[
+"http://snomed.info/sct",
+"703938007",
+"Inflammatory dermatosis",
+"Dermatitis"
+],
+[
+"http://snomed.info/sct",
+"23513009",
+"Herpesvirus infection",
+"Herpes"
+],
+[
+"http://snomed.info/sct",
+"76272004",
+"Syphilis",
+"Sifilis"
+],
+[
+"http://snomed.info/sct",
+"128241005",
+"Inflammatory disease of liver",
+"Hepatitis"
+],
+[
+"http://snomed.info/sct",
+"62315008",
+"Diarrhea",
+"Diare"
+],
+[
+"http://snomed.info/sct",
+"186946009",
+"Lymphogranuloma venereum",
+"LGV"
+],
+[
+"http://snomed.info/sct",
+"187192000",
+"Toxoplasmosis",
+"Toksoplasmosis"
+],
+[
+"http://snomed.info/sct",
+"79740000",
+"Candidiasis of mouth",
+"Kandidiasis Oralesovagial"
+],
+[
+"http://snomed.info/sct",
+"415125002",
+"Pneumocystosis pneumonia",
+"CP"
+],
+[
+"http://snomed.info/sct",
+"238108007",
+"Cachexia",
+"Wasting Syndrome"
+],
+[
+"http://snomed.info/sct",
+"8098009",
+"Sexually transmitted infectious disease",
+"IMS Lainnya"
+]
+]
+},
+"tandaklinis": {
+"title": "Lampiran 6 — Tanda klinis IMS (Condition.code)",
+"cols": [
+"system",
+"code",
+"display",
+"Pilihan jawaban / keterangan"
+],
+"rows": [
+[
+"http://snomed.info/sct",
+"20036005",
+"Cervical discharge",
+"Duh tubuh serviks"
+],
+[
+"http://snomed.info/sct",
+"21522001",
+"Abdominal pain",
+"Nyeri perut"
+],
+[
+"http://snomed.info/sct",
+"283096002",
+"Scratch of genitalia",
+"Lecet"
+],
+[
+"http://snomed.info/sct",
+"339008",
+"Blister",
+"Bintil sakit"
+],
+[
+"http://snomed.info/sct",
+"56208002",
+"Ulcer",
+"Luka/ulkus"
+],
+[
+"http://snomed.info/sct",
+"363564008",
+"Vegetation",
+"Vegetasi"
+],
+[
+"http://snomed.info/sct",
+"11585000",
+"Bubo",
+"Bubo"
+],
+[
+"http://snomed.info/sct",
+"289818008",
+"Pain on movement of cervix",
+"Nyeri goyang serviks"
+],
+[
+"http://snomed.info/sct",
+"249661007",
+"Discharge from anus",
+"Duh Tubuh Anus (DTA)"
+],
+[
+"http://snomed.info/sct",
+"246679005",
+"Discharge from eye",
+"Duh tubuh mata"
+],
+[
+"http://snomed.info/sct",
+"289894009",
+"Menstrual bleeding present",
+"Menstruasi"
+],
+[
+"http://snomed.info/sct",
+"9957009",
+"Urethral discharge",
+"Duh Tubuh Uretra (DTU)"
+],
+[
+"http://snomed.info/sct",
+"271939006",
+"Vaginal discharge",
+"Duh Tubuh Vagina (DTV)"
+],
+[
+"http://snomed.info/sct",
+"19672005",
+"Condyloma",
+"Jengger"
+],
+[
+"http://snomed.info/sct",
+"300848003",
+"Mass of body structure",
+"Benjolan"
+],
+[
+"http://snomed.info/sct",
+"271687003",
+"Swelling of scrotum",
+"Pembengkakan Scrotum"
+],
+[
+"Tidak Ada",
+"Tidak Ada",
+"Tidak Ada",
+"Lainnya"
+]
+]
+},
+"fisik": {
+"title": "Lampiran 7 — Pemeriksaan fisik (Observation.valueCodeableConcept)",
+"cols": [
+"system",
+"code",
+"display",
+"Pilihan jawaban / keterangan"
+],
+"rows": [
+[
+"http://snomed.info/sct",
+"21522001",
+"Abdominal pain",
+"Nyeri perut"
+],
+[
+"http://snomed.info/sct",
+"283096002",
+"Scratch of genitalia",
+"Lecet"
+],
+[
+"http://snomed.info/sct",
+"339008",
+"Blister",
+"Bintil sakit"
+],
+[
+"http://snomed.info/sct",
+"56208002",
+"Ulcer",
+"Luka/ulkus"
+]
+]
+},
+"alasanperiksa": {
+"title": "Lampiran 8 — Alasan pemeriksaan (ServiceRequest.reasonCode)",
+"cols": [
+"system",
+"code",
+"display",
+"Pilihan jawaban / keterangan"
+],
+"rows": [
+[
+"http://snomed.info/sct",
+"171128005",
+"Venereal disease screening",
+"Skrining PMS"
+],
+[
+"http://terminology.kemkes.go.id/CodeSystem/clinical-term",
+"SRR000007",
+"Pemeriksaan Diagnosis",
+"Sakit"
+],
+[
+"http://terminology.kemkes.go.id/CodeSystem/clinical-term",
+"SRR000008",
+"Follow Up",
+"Follow up pengobatan"
+]
+]
+},
+"jenisperiksa": {
+"title": "Lampiran 9 — Jenis pemeriksaan (ServiceRequest.code)",
+"cols": [
+"system",
+"code",
+"display",
+"Pilihan jawaban / keterangan"
+],
+"rows": [
+[
+"http://terminology.kemkes.go.id/CodeSystem/examination",
+"X099420",
+"Pemeriksaan HIV + Sifilis",
+"Pemeriksaan rapid serologis HIV*"
+],
+[
+"http://terminology.kemkes.go.id/CodeSystem/examination",
+"X099419",
+"Pemeriksaan HIV Diagnostik",
+"Pemeriksaan rapid serologis HIV*"
+],
+[
+"http://loinc.org",
+"7918-6",
+"HIV 1+2 Ab [Presence] in Serum",
+"Pemeriksaan rapid serologis HIV"
+],
+[
+"http://loinc.org",
+"31201-7",
+"HIV 1+2 Ab [Presence] in Serum or Plasma by Immunoassay",
+"Pemeriksaan rapid serologis HIV"
+],
+[
+"http://loinc.org",
+"80387-4",
+"HIV 1+2 Ab [Presence] in Serum, Plasma or Blood by Rapid immunoassay",
+"Pemeriksaan rapid serologis HIV"
+],
+[
+"http://loinc.org",
+"95524-5",
+"HIV 1 and 2 Ab [Identifier] in Serum or Plasma by Immunoassay",
+"Pemeriksaan rapid serologis HIV"
+],
+[
+"http://loinc.org",
+"69668-2",
+"HIV 1 and 2 Ab [Identifier] in Serum or Plasma by Rapid immunoassay",
+"Pemeriksaan rapid serologis HIV"
+],
+[
+"http://loinc.org",
+"7917-8",
+"HIV 1 Ab [Presence] in Serum",
+"Pemeriksaan rapid serologis HIV"
+],
+[
+"http://loinc.org",
+"7919-4",
+"HIV 2 Ab [Presence] in Serum",
+"Pemeriksaan rapid serologis HIV"
+],
+[
+"http://loinc.org",
+"44871-2",
+"HIV 1 proviral DNA [Presence] in Blood by NAA with probe detection",
+"PCR DNA HIV/EID (Kualitatif)"
+],
+[
+"http://loinc.org",
+"25841-8",
+"HIV 2 proviral DNA [Presence] in Blood by NAA with probe detection",
+"PCR DNA HIV/EID (Kualitatif)"
+],
+[
+"http://loinc.org",
+"74854-1",
+"HIV 1 proviral DNA [#/volume] (viral load) in Blood by NAA with probe detection",
+"PCR DNA HIV/EID (Kuantitatif)"
+],
+[
+"http://loinc.org",
+"59419-2",
+"HIV 1 RNA [#/volume] (viral load) in Plasma by Probe with signal amplification",
+"PCR RNA HIV"
+],
+[
+"http://loinc.org",
+"86548-5",
+"HIV 2 RNA [#/volume] (viral load) in Plasma by NAA with probe detection",
+"PCR RNA HIV"
+],
+[
+"http://loinc.org",
+"29539-4",
+"HIV 1 RNA [Log #/volume] (viral load) in Plasma by Probe with signal amplification",
+"PCR RNA HIV"
+],
+[
+"http://loinc.org",
+"62469-2",
+"HIV 1 RNA [Units/volume] (viral load) in Serum or Plasma by NAA with probe detection",
+"PCR RNA HIV"
+],
+[
+"http://loinc.org",
+"69354-9",
+"HIV 2 RNA [Units/volume] (viral load) in Serum or Plasma by NAA with probe detection",
+"PCR RNA HIV"
+],
+[
+"http://loinc.org",
+"22587-0",
+"Treponema pallidum Ab [Presence] in Serum",
+"Tes Rapid Sifilis/ TPHA"
+],
+[
+"http://loinc.org",
+"8041-6",
+"Treponema pallidum Ab [Presence] in Serum by Hemagglutination",
+"Tes Rapid Sifilis/ TPHA"
+],
+[
+"http://loinc.org",
+"5393-4",
+"Treponema pallidum Ab [Presence] in Serum by Immunofluorescence",
+"Tes Rapid Sifilis/ TPHA"
+],
+[
+"http://loinc.org",
+"31147-2",
+"Reagin Ab [Titer] in Serum by RPR",
+"Tes Titer RPR"
+],
+[
+"http://loinc.org",
+"5292-8",
+"Reagin Ab [Presence] in Serum by VDRL",
+"Tes VDRL"
+],
+[
+"http://loinc.org",
+"20507-0",
+"Reagin Ab [Presence] in Serum by RPR",
+"Tes RPR"
+]
+]
+},
+"spesimen": {
+"title": "Lampiran 10 — Jenis spesimen (Specimen.type)",
+"cols": [
+"system",
+"code",
+"display",
+"Pilihan jawaban / keterangan"
+],
+"rows": [
+[
+"http://snomed.info/sct",
+"119297000",
+"Blood specimen",
+"Darah"
+],
+[
+"http://snomed.info/sct",
+"119361006",
+"Plasma",
+"Plasma"
+],
+[
+"http://snomed.info/sct",
+"119364003",
+"Serum",
+"Serum"
+],
+[
+"http://snomed.info/sct",
+"258580003",
+"Whole blood specimen",
+"Whole blood"
+]
+]
+},
+"kondisispesimen": {
+"title": "Lampiran 11 — Kondisi spesimen (Specimen.status & Specimen.condition)",
+"cols": [
+"Pilihan",
+"status.code",
+"condition.system",
+"condition.code",
+"condition.display"
+],
+"rows": [
+[
+"Spesimen baik",
+"available",
+"-",
+"-",
+"-"
+],
+[
+"Spesimen tidak ada",
+"unavailable",
+"-",
+"-",
+"-"
+],
+[
+"Spesimen kurang",
+"unsatisfactory",
+"http://snomed.info/sct",
+"281268007",
+"Insufficient sample (finding)"
+],
+[
+"Spesimen lipemik",
+"unsatisfactory",
+"http://snomed.info/sct",
+"118127007",
+"Sample lipemic"
+],
+[
+"Spesimen lisis",
+"unsatisfactory",
+"http://terminology.hl7.org/CodeSystem/v2-0493",
+"AUT",
+"Autolyzed"
+],
+[
+"Spesimen rusak",
+"unsatisfactory",
+"http://snomed.info/sct",
+"281262008",
+"Sample broken (finding)"
+]
+]
+},
+"algoritma": {
+"title": "Algoritma kesimpulan rapid serologis HIV (R1, R2, R3)",
+"cols": [
+"R1",
+"R2",
+"R3",
+"Kesimpulan"
+],
+"rows": [
+[
+"Reaktif",
+"Reaktif",
+"Reaktif",
+"Positif"
+],
+[
+"Reaktif",
+"Reaktif",
+"Non Reaktif",
+"Inkonklusif"
+],
+[
+"Reaktif",
+"Non Reaktif",
+"(R1 ulang) Reaktif",
+"Inkonklusif"
+],
+[
+"Reaktif",
+"Non Reaktif",
+"(R1 ulang) Non Reaktif",
+"Negatif"
+],
+[
+"Non Reaktif",
+"(tidak perlu)",
+"",
+"Negatif"
+]
+]
+}
+}
