@@ -1,2 +1,3 @@
-target,elemen,jenis,usulan,alasan,kontributor,institusi,tanggal,status
-K-083,Procedure.code.coding,resolve,"Contoh: samakan ke KPTL 10913 + SNOMED seperti modul Rawat Jalan","Contoh: kode ED000001 di modul Gigi memakai system SNOMED, kemungkinan salah tulis",Nama Pengusul,Institusi,2026-09-29,terbuka
+target,elemen,jenis,usulan,alasan,kontributor,institusi,tanggal,status,aksi,path,nilai_lama,nilai_baru,tujuan
+K-083,Procedure.code.coding,resolve,"Contoh: samakan ke KPTL 10913 + SNOMED seperti modul Rawat Jalan","Contoh: kode ED000001 di modul Gigi memakai system SNOMED, kemungkinan salah tulis",Nama Pengusul,Institusi,2026-09-29,terbuka,,,,,
+MPDN-056,Observation.valueQuantity.unit,resolve,"Contoh baris beraksi: satuan diseragamkan jadi cm","Contoh: setara, kode UCUM tetap cm",Nama Pengusul,Institusi,2026-09-29,terbuka,ganti-nilai,Observation.valueQuantity.unit,centimeter,cm,

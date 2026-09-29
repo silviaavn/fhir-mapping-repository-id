@@ -1,0 +1,6 @@
+target,elemen,jenis,usulan,alasan,kontributor,institusi,tanggal,status,aksi,path,nilai_lama,nilai_baru,tujuan
+MPDN-056,Observation.valueQuantity.unit,resolve,"Satuan disamakan menjadi cm","Setara dengan variabel lain; kode UCUM memang sudah cm",Silvia,,2026-09-29,diterima,ganti-nilai,Observation.valueQuantity.unit,centimeter,cm,
+MPDN-056,Observation.code.coding,resolve,"Ganti kode LOINC 8302-2 menjadi 8306-3","MPDN-056 mewakili panjang saat meninggal (diukur telentang), bukan tinggi badan berdiri",Silvia,,2026-09-29,diterima,ganti-nilai,Observation.code.coding.code,8302-2,8306-3,
+MPDN-056,Observation.code.coding,resolve,"Sesuaikan display menjadi Body height --lying","Mengikuti kode 8306-3",Silvia,,2026-09-29,diterima,ganti-nilai,Observation.code.coding.display,Body height,Body height --lying,
+MPDN-056,,resolve,"Pindahkan MPDN-056 ke konsep Panjang Badan (GIZI-028)","Kode utama sudah sama setelah tiga baris di atas diterapkan",Silvia,,2026-09-29,diterima,pindah-konsep,,,,GIZI-028
+MPDN-056,Observation.category.coding.code,catatan,"Kategori survey dikonfirmasi benar untuk MPDN, tidak diubah","Sesuai playbook MPDN; perbedaan dengan GIZI (vital-signs) disengaja",Silvia,,2026-09-29,terbuka,,,,,
