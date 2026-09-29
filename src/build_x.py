@@ -33,6 +33,8 @@ lines=[("SATUSEHAT — semua use case: variabel, elemen FHIR, nilai, crosscheck 
  ("Maksud sama, kode/struktur beda — konsepnya setara tetapi kode, category, atau resource berbeda → potensi inkonsistensi dokumentasi.",False),
  ("Elemen generik (subject, patient, encounter, performer, author, source, effectiveDateTime) tidak dipakai untuk menentukan kecocokan, tapi tetap ditampilkan.",False),
  ("Ringkasan Resource — per resource: elemen apa yang biasanya ada (Inti ≥80% variabel, Umum 40–79%, Kadang 10–39%, Jarang <10%), elemen pilihan [x] dihitung sekali (cukup salah satu tipe data). Sheet 'Resource - Nilai' merinci nilai/kode per path + kode tambahan dari Lampiran Standar Terminologi v10.3 (ditandai).",False),
+ ("Baris '(rujukan)' — tahap yang di playbook hanya merujuk ke modul lain (mis. Rawat Jalan/IGD/Rawat Inap) tanpa merinci elemen; ditampilkan sebagai judul tahap + tautan playbook, tidak disalin.",False),
+ ("Baris berlatar biru muda dengan tanda PELENGKAP — elemen yang tidak ada di playbook ini tetapi ada di playbook lain dalam satu konsep berstatus 'Saling melengkapi'; sumbernya disebut di kolom Keterangan.",False),
  ("Deskripsi variabel — dari kalimat playbook yang menyebut variabel tsb; bila tidak ada, dibuat otomatis oleh Claude (ditandai 'Claude, belum diverifikasi').",False),
  ("Nilai seperti Patient/{…}, Encounter/{…} = referensi; nilai (status) / (intent) = elemen wajib yang nilainya tidak dirinci di playbook.",False)]
 for i,(t,b) in enumerate(lines,1):
@@ -47,11 +49,31 @@ for t,tname in M.TITLES:
     ws=wb.create_sheet(SHEET[t]); ws["A1"]=tname; ws["A1"].font=Font(name=F,bold=True,size=13)
     ws["A2"]="Sumber: "+M.SRC[t]; ws["A2"].font=Font(name=F,size=9,italic=True,color="555555")
     hdr(ws,4,H,W); row=5; prev=None
-    for n,v in enumerate([x for x in M.ALL if x["title"]==t]):
+    REFT={}
+    for r in M.REFS:
+        if r["title"]==t: REFT.setdefault(r["tahap"],r)
+    def refline(rr,tah):
+        r=REFT.pop(tah,None)
+        if not r: return rr
+        txt="MENGIKUTI MODUL LAIN — "+r["note"]+(" Bagian yang dirujuk: "+r["isi"]+"." if r.get("isi") else "")+(" Kutipan playbook: “"+r["kutipan"]+"”" if r.get("kutipan") else "")+" Tautan: "+"; ".join(f'{x["judul"]} {x["url"]}' for x in r["targets"])
+        cell(ws,rr,1,"(rujukan)",color=PL,bold=True); cell(ws,rr,2,tah,color="999999")
+        cell(ws,rr,6,txt); ws.merge_cells(start_row=rr,start_column=6,end_row=rr,end_column=13)
+        for i in range(1,14): ws.cell(rr,i).fill=PatternFill("solid",fgColor="F4E8ED"); ws.cell(rr,i).border=B
+        return rr+1
+    _order=[x for x in M.ALL if x["title"]==t]
+    def _no(x):
+        import re as _re; m=_re.match(r"^(\d{1,2})[.]",x or ""); return int(m.group(1)) if m else 999
+    for n,v in enumerate(_order):
         if v["tahap"]!=prev:
+            for tah in [k for k in list(REFT) if _no(k)<_no(v["tahap"])]:
+                cell(ws,row,1,tah.upper(),bold=True,color=PL,size=10)
+                for i in range(1,14): ws.cell(row,i).fill=STEP; ws.cell(row,i).border=B
+                ws.merge_cells(start_row=row,start_column=1,end_row=row,end_column=13); row+=1
+                row=refline(row,tah)
             cell(ws,row,1,v["tahap"].upper(),bold=True,color=PL,size=10)
             for i in range(1,14): ws.cell(row,i).fill=STEP; ws.cell(row,i).border=B
             ws.merge_cells(start_row=row,start_column=1,end_row=row,end_column=13); row+=1; prev=v["tahap"]
+            row=refline(row,v["tahap"])
         g=M.GBY[v["gid"]]; pos[v["id"]]=(SHEET[t],row)
         others=[m["id"] for m in g["members"] if m["id"]!=v["id"]]
         muncul=f"{g['id']} {g['label']}"+(("\nJuga: "+"; ".join(vname(o) for o in others)) if others else "")+(("\nTerkait: "+"; ".join(f"{rid} {M.GBY[rid]['label']}" for rid,_ in g["related"][:6])) if g["related"] else "")
@@ -68,6 +90,21 @@ for t,tname in M.TITLES:
             if lst: links.append((ws.title,f"H{row}","LIST",lst))
             if al: links.append((ws.title,f"I{row}","VAR",al[0]))
             row+=1
+        for x in v.get("sup",[]):
+            if x["coded"]: nilai=" / ".join(f'{o[0]} | {o[1]} | {o[2]}' for o in x["body"][:12])
+            else: nilai=" / ".join(str(o[0]) for o in x["body"][:12])
+            if x["lists"]: nilai=(nilai+" ").strip()+" → Daftar "+", ".join(x["lists"])
+            vals=[v["id"],v["tahap"],v["kel"],v["var"],v["res"],("*" if x["star"] else "")+x["key"],nilai or "(nilai tidak dirinci)",
+                  "PELENGKAP dari playbook lain: "+", ".join(vname(i) for i in x["src"]),None,None,None,None,None]
+            for i,xx in enumerate(vals,1):
+                cell(ws,row,i,xx,color=("999999" if i<=5 else ("3B2D5C" if i in (6,7) else "000000")),fill=PatternFill("solid",fgColor="EAF1F7"))
+            if x["lists"]: links.append((ws.title,f"H{row}","LIST",x["lists"][0]))
+            row+=1
+    for tah in list(REFT):
+        cell(ws,row,1,tah.upper(),bold=True,color=PL,size=10)
+        for i in range(1,14): ws.cell(row,i).fill=STEP; ws.cell(row,i).border=B
+        ws.merge_cells(start_row=row,start_column=1,end_row=row,end_column=13); row+=1
+        row=refline(row,tah)
     ws.freeze_panes="F5"; ws.auto_filter.ref=f"A4:M{row-1}"
 # ---- Ringkasan
 wr=wb.create_sheet("Ringkasan Crosscheck",1)
@@ -191,6 +228,4 @@ for sh,ref,tsh,tgt in links:
     elif tsh=="LIST": loc=f"'{LSHEET}'!A{LPOS[tgt]}"
     else: loc=f"'{tsh}'!A{tgt}"
     c=wb[sh][ref]; c.hyperlink=Hyperlink(ref=ref,location=loc); c.font=Font(name=F,size=9,color="0563C1",underline="single",bold=c.font.bold)
-import os
-out=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),"data","SATUSEHAT_Semua_UseCase_Crosscheck.xlsx")
-wb.save(out); print(out, {ws.title:ws.max_row for ws in wb})
+out="/mnt/user-data/outputs/SATUSEHAT_Semua_UseCase_Crosscheck.xlsx"; wb.save(out); print(out, {ws.title:ws.max_row for ws in wb})

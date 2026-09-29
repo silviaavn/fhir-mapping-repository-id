@@ -1,9 +1,7 @@
 # Element-level summaries: per concept group, per resource (Ringkasan Resource), std terminology, descriptions
-import re, json, os
+import re, json
 import model as M
 from model import ALL, G, LISTS, npath, BYID
-_ROOT=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-_D=lambda f: os.path.join(_ROOT,"data",f)
 
 TT=dict(M.TITLES)
 CODED_SUFFIX=(".system",".code",".display")
@@ -118,6 +116,26 @@ for g in G:
     g["els"]=group_elements(g)
     g["expl"]=explain(g,g["els"])
 
+# ---------------- Pelengkap: elemen dari playbook lain (grup "Saling melengkapi") ----------------
+for v in ALL: v["sup"]=[]
+for g in G:
+    if g["status"]!="Saling melengkapi": continue
+    ids=[m["id"] for m in g["members"]]
+    for E in g["els"]:
+        if _skip_key(E["key"]): continue
+        miss=[i for i in ids if i not in E["ids"]]
+        if not miss: continue
+        if E["coded"]:
+            body=[[o["s"],o["c"],o["d"],o["k"]] for o in E["opts"].values()]
+        else:
+            body=[[x["v"],x["k"]] for nk,x in E["vals"].items() if not PLACEHOLDER.match(x["v"])]
+        lists=list(E["lists"].keys())
+        if not body and not lists: continue
+        src=sorted(E["ids"])
+        for i in miss:
+            BYID[i]["sup"].append(dict(key=E["key"],coded=E["coded"],star=E["star"],body=body[:40],lists=lists,src=src))
+NSUP=sum(len(v["sup"]) for v in ALL); NSUPVAR=sum(1 for v in ALL if v["sup"])
+
 # ---------------- Ringkasan Resource ----------------
 CHOICE=re.compile(r"^(value|effective|onset|abatement|performed|occurrence|medication|deceased|multipleBirth|asNeeded|collected|fastingStatus|reported|allowed|born|serviced|timing|product|item|statusReason|dose|rate|scheduled|defaultValue|answer)(Quantity|CodeableConcept|String|Boolean|Integer|Range|Ratio|SampledData|Time|DateTime|Period|Timing|Instant|Age|Reference|Coding|Date|Decimal|Attachment|Uri|Url|Canonical|Code|Id|Markdown|PositiveInt|UnsignedInt|Identifier|Duration|SimpleQuantity)$")
 def elem_of(rt,np_):
@@ -205,7 +223,7 @@ for v in ALL:
             for l in plain[k]["lists"]: Pp["lists"].setdefault(l,set()).add(v["id"])
 
 # ---------------- Lampiran Standar Terminologi ----------------
-STD=json.load(open(_D("satusehat_standar_terminologi_v10.3.json")))
+STD=json.load(open("/home/claude/term/std.json"))
 def nk(p):
     p=re.sub(r"\[[^\]]*\]","",p).replace("extension:","extension.")
     p=re.sub(r"\.coding\b","",p)
@@ -278,9 +296,9 @@ for rt,R in sorted(RS.items()):
     RSOUT[rt]={"nv":nv,"titles":titles,"tv":tv,"els":els,"unused":[c for c in canon if c not in used],"core":core,"miss":miss,"stdonly":R.get("stdonly",[]),"canon":bool(canon)}
 
 # ---------------- Deskripsi variabel ----------------
-RAW=json.load(open(_D("satusehat_playbook_raw_20260918.json")))
-PDFJ=json.load(open(_D("satusehat_playbook_pdf_20260918.json")))["modules"]
-AUTO=json.load(open(_D("satusehat_playbook_auto_extract.json")))
+RAW=json.load(open("/home/claude/crawl/raw.json"))
+PDFJ=json.load(open("/mnt/user-data/outputs/satusehat_playbook_pdf_20260918.json"))["modules"]
+AUTO=json.load(open("/home/claude/crawl/auto.json"))
 URL={"ANC":"https://satusehat.kemkes.go.id/platform/docs/id/interoperability/anc/","RJ":"https://satusehat.kemkes.go.id/platform/docs/id/interoperability/rme-rawat-jalan/"}
 for c,m in AUTO.items(): URL[c]=m["url"]
 BOIL=re.compile(r"(Berikut( ini)? (adalah )?pemetaan|Penjelasan tipe mandatoris|Postman|Pemetaan Nilai|dapat dilihat (pada|di) (tabel|gambar)|Silakan klik|Terminologi spesifik yang digunakan|Setiap terdapat simbol)",re.I)

@@ -1,7 +1,5 @@
-import re, copy, json, os
+import re, copy, json
 import data3, rj, hiv
-_ROOT=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-_D=lambda f: os.path.join(_ROOT,"data",f)
 TITLES=[("ANC","Antenatal Care (ANC)"),("RJ","Resume Medis Rawat Jalan"),("HIV","HIV (Fase 1)")]
 SRC={"HIV":"Playbook Modul HIV v1.0 (PDF, header versi 1.3 / 15 Agu 2024; halaman web disunting 8 Des 2024)","ANC":"Playbook ANC (2 Okt 2025) + Lampiran Terminologi ANC (1 Nov 2024)","RJ":"Playbook Resume Medis Rawat Jalan + Lampiran Terminologi RME Rawat Jalan (7 Okt 2024)"}
 
@@ -24,36 +22,35 @@ RJSEC={v["var"]:v["tahap"] for v in rj.V}
 REPL={"7.":["Permintaan pemeriksaan laboratorium","Status puasa pasien","Spesimen laboratorium","Hasil pemeriksaan laboratorium","Laporan pemeriksaan laboratorium","Permintaan pemeriksaan radiologi","Status alergi bahan kontras","Status kehamilan","Status puasa (radiologi)","Citra DICOM","Hasil (bacaan) radiologi","Laporan / kesimpulan radiologi"],
  "8.":["Diagnosis"],"9.":["Permintaan tindakan","Pelaksanaan tindakan"],"11.":["Peresepan obat","Pengkajian resep","Pengeluaran obat"],
  "12.":["Rencana tindak lanjut"],"13.":["Instruksi tindak lanjut & sarana transportasi rujuk"],"14.":["Kondisi saat meninggalkan RS (Condition)","Kondisi saat meninggalkan RS (Encounter)"],"15.":["Cara keluar dari RS"]}
-ANC=[]; done=set()
+ANC=[]; done=set(); REFS=[]   # REFS: tahap yang di playbook hanya merujuk ke modul lain -> judul + tautan saja
+RJURL="https://satusehat.kemkes.go.id/platform/docs/id/interoperability/rme-rawat-jalan/"
 for v in data3.V:
     k=v["tahap"].split(" ")[0]
     if k in REPL:
         if v["var"]=="Waktu kematian (bila meninggal)": pass
         else:
             if k not in done:
-                for name in REPL[k]:
-                    c=copy.deepcopy(RJBY[name]); c["tahap"]=v["tahap"]; c["copy"]="RJ"
-                    c["cat"]=f"Disalin dari Rawat Jalan § {RJSEC[name]} (playbook ANC merujuk ke modul Rawat Jalan). "+c["cat"]
-                    ANC.append(c)
+                REFS.append(dict(title="ANC",tahap=v["tahap"],code="RJ",judul="Resume Medis Rawat Jalan",url=RJURL,
+                    isi="; ".join(REPL[k]),targets=[dict(code="RJ",judul="Resume Medis Rawat Jalan",url=RJURL)],
+                    note="Playbook ANC pada tahap ini tidak merinci elemen sendiri, melainkan merujuk ke modul Resume Medis Rawat Jalan."))
                 done.add(k)
             continue
     ANC.append(v)
 # the Waktu kematian row sits after the step-14 copies (already the case by order)
 HIVL=[]
 for v in hiv.V:
-    if v["tahap"].startswith("10.") and not any(x["tahap"].startswith("6.") for x in HIVL):
+    if v["tahap"].startswith("10.") and not any(r["title"]=="HIV" for r in REFS):
         for tah,names in hiv.COPY.items():
-            for name in names:
-                c=copy.deepcopy(RJBY[name]); c["tahap"]=tah; c["copy"]="RJ"
-                c["cat"]=f"Disalin dari Rawat Jalan § {RJSEC[name]} (playbook HIV merujuk ke modul Rawat Jalan). "+c["cat"]
-                HIVL.append(c)
+            REFS.append(dict(title="HIV",tahap=tah,code="RJ",judul="Resume Medis Rawat Jalan",url=RJURL,
+                isi="; ".join(names),targets=[dict(code="RJ",judul="Resume Medis Rawat Jalan",url=RJURL)],
+                note="Playbook HIV pada tahap ini tidak merinci elemen sendiri, melainkan merujuk ke modul Resume Medis Rawat Jalan."))
     HIVL.append(v)
 for v in ANC: v["title"]="ANC"
 for v in rj.V: v["title"]="RJ"
 for v in HIVL: v["title"]="HIV"
 ALL=ANC+rj.V+HIVL
 # ---------- auto-extracted modules ----------
-AUTO=json.load(open(_D("satusehat_playbook_auto_extract.json")))
+AUTO=json.load(open("/home/claude/crawl/auto.json"))
 AUTOLISTS={}
 for code,md in AUTO.items():
     TITLES.append((code,md["title"]))
@@ -81,6 +78,52 @@ for code,md in AUTO.items():
         v2=dict(v); v2["el"]=el; v2["title"]=code
         v2["cat"]=("Ekstraksi otomatis — belum dicek manual. "+(v.get("cat") or "")).strip()
         ALL.append(v2)
+# ---------- tahap modul otomatis yang hanya merujuk ke modul lain ----------
+_RAW=json.load(open("/home/claude/crawl/raw.json"))
+_PDFJ=json.load(open("/mnt/user-data/outputs/satusehat_playbook_pdf_20260918.json"))["modules"]
+_TGT=[(re.compile(r"(Resume Medis)?\s*Rawat Jalan",re.I),"RJ","Resume Medis Rawat Jalan",RJURL),
+      (re.compile(r"\bIGD\b|Gawat Darurat",re.I),"IGD","Pelayanan Instalasi Gawat Darurat (IGD)",""),
+      (re.compile(r"Rawat Inap",re.I),"RANAP","Rawat Inap",""),
+      (re.compile(r"Kefarmasian",re.I),"FARMASI","Pelayanan Kefarmasian","")]
+_REFPAT=re.compile(r"(merujuk|mengacu|mengikuti|dapat dilihat pada|sesuai dengan|sama dengan)[^.]{0,140}?(Rawat Jalan|Gawat Darurat|IGD|Rawat Inap|Kefarmasian)",re.I)
+_HEAD=re.compile(r"^(\d{1,2})\.\s+(.{3,120})$")
+def _url(code):
+    for c,md in AUTO.items():
+        if c==code: return md["url"]
+    return RJURL if code=="RJ" else ""
+for code,md in AUTO.items():
+    have={v["tahap"] for v in md["V"] if v.get("el")}
+    pg=_RAW["pages"].get(md["url"])
+    steps={}   # tahap -> teks
+    if pg:
+        cur=None
+        for b in pg["blocks"]:
+            if b["t"]=="h":
+                m=_HEAD.match((b.get("x") or "").strip())
+                cur=(b["x"] or "").strip() if m else cur
+            elif b["t"] in ("p","li") and cur and b.get("x"):
+                steps[cur]=(steps.get(cur,"")+" "+b["x"])[:1200]
+    else:
+        pj=_PDFJ.get(md["slug"])
+        if pj:
+            cur=None
+            for p in pj["pages"]:
+                for line in p["text"].split("\n"):
+                    l=line.strip()
+                    m=re.match(r"^(\d{1,2})\.\s+(Pengiriman|Pendaftaran|Memulai|Pembaharuan|Menutup|Penutupan|Pencatatan|Registrasi)\b.*",l)
+                    if m: cur=l[:120]
+                    elif cur and len(l)>30: steps[cur]=(steps.get(cur,"")+" "+l)[:1200]
+    for tah,txt in steps.items():
+        if tah in have: continue
+        m=_REFPAT.search(txt)
+        if not m: continue
+        _w=txt[m.start():m.start()+320]; _w=_w.split(". ")[0]
+        tgts=[(c,j,u or _url(c)) for rx,c,j,u in _TGT if rx.search(_w) and c!=code]
+        if not tgts: continue
+        REFS.append(dict(title=code,tahap=tah,code=tgts[0][0],judul=tgts[0][1],url=tgts[0][2],isi="",
+            targets=[dict(code=c,judul=j,url=u) for c,j,u in tgts],
+            note="Playbook "+md["title"]+" pada tahap ini merujuk ke modul lain tanpa merinci elemennya sendiri.",
+            kutipan=re.sub(r"\s+"," ",_w).strip()[:300]))
 cnt={t:0 for t,_ in TITLES}
 for v in ALL:
     cnt[v["title"]]+=1; v["id"]=f'{v["title"]}-{cnt[v["title"]]:03d}'
@@ -309,7 +352,7 @@ for g in G:
     g["rows"]=list(rows.values())
 
 import json as _j
-HL_=_j.load(open(_D("hiv_lists.json")))
+HL_=_j.load(open("/home/claude/hiv/lists.json"))
 LISTS={"icd":dict(title="Kode ICD-10 komplikasi/penyulit kehamilan (Lampiran 2 ANC)",cols=["code","display","Deskripsi","Trimester"],rows=[list(r) for r in data3.ICD]),
  "kfa":dict(title="Struktur kamus KFA (Lampiran RME Rawat Jalan + playbook)",cols=["Tag","Deskripsi","Format kode","Tata cara penamaan","Contoh"],rows=[
    ["BZA","Bahan Zat Aktif","91xxxxxx","Nama molekul kimia","Paracetamol"],["POV","Produk Obat Virtual","92xxxxxx","Zat aktif + kekuatan + satuan + bentuk sediaan","Paracetamol 500 mg Tablet"],

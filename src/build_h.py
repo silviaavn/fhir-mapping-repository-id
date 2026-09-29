@@ -1,6 +1,7 @@
 import model as M, model2 as M2, json
 V=[dict(id=v["id"],t=v["title"],tahap=v["tahap"],kel=v["kel"],var=v["var"],res=v["res"],el=[list(e) for e in v["elc"]],cat=v["cat"],frek=v["frek"],g=v["gid"],a=1 if v.get("auto") else 0,
-        also=[[p,c,o] for (p,c),o in v["also"].items()]) for v in M.ALL]
+        also=[[p,c,o] for (p,c),o in v["also"].items()],
+        sup=[[x["key"],1 if x["coded"] else 0,1 if x["star"] else 0,x["body"],x["lists"],x["src"]] for x in v.get("sup",[])]) for v in M.ALL]
 def pk(E):
     if E["coded"]: body=[[o["s"],o["c"],o["d"],o["k"],o["ids"]] for o in E["opts"].values()]
     else: body=[[x["v"],x["k"],x["ids"]] for x in E["vals"].values()]
@@ -9,12 +10,13 @@ G=[dict(id=g["id"],label=g["label"],status=g["status"],note=g["note"],m=[x["id"]
         els=[pk(E) for E in g["els"]],ex=[[x["el"],x["kind"],x["parts"]] for x in g["expl"]]) for g in M.G]
 DS={k:[1 if d["src"]=="playbook" else 0,d["t"],d["ctx"]] for k,d in M2.DESC.items()}
 import markdown
-import os
-_ROOT=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DOC=markdown.markdown(open(os.path.join(_ROOT,"docs","DOKUMENTASI.md")).read(),extensions=['tables'])
-D=json.dumps(dict(DOC=DOC,V=V,G=G,L=M.LISTS,T=[list(t) for t in M.TITLES],S=M.SRC,C=M.CODEVARS,RS=M2.RSOUT,DS=DS,SNAP='SATUSEHAT snapshot 18 Sep 2026',
-   STD='Dokumen Lampiran Standar Terminologi SATUSEHAT v10.3 (30 Jun 2026)'),ensure_ascii=False,separators=(",",":"))
-html=r'''<title>SATUSEHAT Crosscheck ANC–RJ</title>
+DOC=markdown.markdown(open('/home/claude/doc/DOKUMENTASI.md').read(),extensions=['tables'])
+REF=[dict(t=r["title"],tahap=r["tahap"],isi=r.get("isi",""),note=r["note"],kutipan=r.get("kutipan",""),
+     tg=[[x["code"],x["judul"],x["url"]] for x in r["targets"]]) for r in M.REFS]
+D=json.dumps(dict(DOC=DOC,REF=REF,V=V,G=G,L=M.LISTS,T=[list(t) for t in M.TITLES],S=M.SRC,C=M.CODEVARS,RS=M2.RSOUT,DS=DS,SNAP='SATUSEHAT snapshot 18 Sep 2026',
+   STD='Dokumen Lampiran Standar Terminologi SATUSEHAT v10.3 (30 Jun 2026)',
+   GH='https://github.com/silviaavn/fhir-mapping-repository-id'),ensure_ascii=False,separators=(",",":"))
+html=r'''<title>Crosscheck Playbook SATUSEHAT</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,600&display=swap">
 <style>
@@ -112,6 +114,16 @@ mark{background:#FFE58A;color:#221A1E;border-radius:2px;padding:0 1px}
 .ev{font-size:12.5px;margin-top:3px;overflow-wrap:anywhere}
 .tag{display:inline-block;font:600 10.5px var(--sans);padding:0 6px;border-radius:6px}
 .tag.beda{background:var(--bad-bg);color:var(--bad)}.tag.sebagian{background:var(--warn-bg);color:var(--warn)}.tag.std{background:var(--accent-soft);color:var(--accent)}
+.tag.rev{background:#E6E0F8;color:#4B3A8F}
+.tag.sup{background:#DDEBF6;color:#1F4E6B}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .tag.sup{background:#1E3446;color:#AFD3EA}}
+:root[data-theme="dark"] .tag.sup{background:#1E3446;color:#AFD3EA}
+tr.ref td{background:var(--accent-soft);font-size:12.5px;padding:8px 12px}
+tr.ref .rj{font-weight:600;color:var(--accent)}
+tr.sup td{background:color-mix(in srgb,var(--chip) 45%,transparent)}
+tr.sup td.path{opacity:.85}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .tag.rev{background:#332A55;color:#C9BCF2}}
+:root[data-theme="dark"] .tag.rev{background:#332A55;color:#C9BCF2}
 .tag.Inti{background:var(--ok-bg);color:var(--ok)}.tag.Umum{background:var(--warn-bg);color:var(--warn)}.tag.Kadang,.tag.Jarang{background:var(--uni-bg);color:var(--uni)}
 #pop ul.parts{padding-left:14px;margin:2px 0 6px}
 .rcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px;margin-top:10px}
@@ -155,6 +167,9 @@ form.revf input,form.revf select,form.revf textarea{font:13px var(--sans);paddin
 form.revf textarea{min-height:64px;resize:vertical}
 form.revf button{font:600 13px var(--sans);padding:8px 12px;border-radius:8px;border:0;background:var(--accent);color:var(--surface);cursor:pointer;justify-self:start}
 .revmsg{font-size:12px;color:var(--muted)}
+.revbtns{display:flex;flex-wrap:wrap;gap:6px}
+.revbtns button{font:600 12.5px var(--sans);padding:7px 10px;border-radius:8px;border:1px solid var(--accent);background:var(--surface);color:var(--accent);cursor:pointer}
+.revbtns button[type=submit]{background:var(--accent);color:var(--surface);border-color:var(--accent)}
 @media (max-width:760px){table.main{min-width:0} table.main thead{display:none} table.main tr{display:block;padding:6px 10px} table.main td{display:block;padding:2px 0} table.main td.var{border-right:0} table.main td[data-l]:not(:empty)::before{content:attr(data-l);display:block;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
  .khead{grid-template-columns:18px 1fr auto;} .khead .id,.khead .tt,.khead .n{display:none}}
 </style>
@@ -174,7 +189,7 @@ form.revf button{font:600 13px var(--sans);padding:8px 12px;border-radius:8px;bo
 </div>
 <div id="stats" class="stats"></div>
 <div id="out"></div>
-<footer>Sumber data dasar: <b id="snap"></b>. Revisi yang ditambahkan lewat tombol “Revisi” ditandai sebagai <b>Revisi kontributor</b> (nama & institusi pengusul), terpisah dari data SATUSEHAT. Status: <b>Identik</b> = elemen & nilai sama · <b>Identik (disalin)</b> = tahap yang di playbook merujuk ke modul Rawat Jalan, detailnya disalin dari RJ · <b>Saling melengkapi</b> = hanya ada elemen/pilihan tambahan, tanpa nilai yang bertentangan · <b>Kode sama, isi beda</b> dan <b>Maksud sama, kode/struktur beda</b> = ada konflik nilai; semua label ⓘ dapat diklik untuk melihat penjelasan perbedaan · <b>Unik</b> = hanya di satu variabel. Elemen generik (subject, encounter, performer, author, source, effectiveDateTime) tidak dipakai untuk mencocokkan.</footer>
+<footer>Sumber data dasar: <b id="snap"></b>. Revisi yang ditambahkan lewat tombol “Revisi” ditandai sebagai <b>Revisi kontributor</b> (nama & institusi pengusul), terpisah dari data SATUSEHAT. Kontributor tanpa akses tulis di halaman ini dapat mengirim usulan sebagai <b>GitHub Issue</b> (akun GitHub gratis) langsung dari form revisi. Status: <b>Identik</b> = elemen & nilai sama · Tahap yang di playbook hanya merujuk ke modul lain ditampilkan sebagai judul + tautan (baris “Mengikuti modul lain”), bukan disalin · <b>Saling melengkapi</b> = hanya ada elemen/pilihan tambahan, tanpa nilai yang bertentangan · <b>Kode sama, isi beda</b> dan <b>Maksud sama, kode/struktur beda</b> = ada konflik nilai; semua label ⓘ dapat diklik untuk melihat penjelasan perbedaan · <b>Unik</b> = hanya di satu variabel. Elemen generik (subject, encounter, performer, author, source, effectiveDateTime) tidak dipakai untuk mencocokkan.</footer>
 </div>
 <div id="pop" role="dialog" aria-modal="false" hidden></div>
 <aside id="drawer" role="dialog" aria-label="Revisi kontributor" hidden><button class="x" type="button" aria-label="Tutup">×</button><header><h3 id="dtitle"></h3><div class="revmsg" id="dsub"></div></header><div class="body" id="dbody"></div></aside>
@@ -187,17 +202,155 @@ const ltxt=k=>{const L=D.L[k];return L?(L.title+" "+L.rows.map(r=>r.join(" ")).j
 D.V.forEach(v=>{v._s=(JSON.stringify([v.id,v.t,v.tahap,v.kel,v.var,v.res,v.el,v.cat,v.frek,(D.DS[v.id]||[])[1]])+" "+v.el.filter(e=>e[3]).map(e=>ltxt(e[3])).join(" ")).toLowerCase()});
 D.G.forEach(g=>{g._s=(g.id+" "+g.label+" "+g.status+" "+g.note+" "+JSON.stringify(g.ex)+" "+g.m.map(i=>VB[i]._s).join(" ")).toLowerCase()});
 const RSS={};Object.keys(D.RS).forEach(r=>RSS[r]=(r+" "+JSON.stringify(D.RS[r])).toLowerCase());
-let REV=[];const RB={};function revFor(id){return RB[id]||[]}
+let REV=[],CSVREV=[];const RB={};function revFor(id){return RB[id]||[]}
+function rebuildRB(){for(const k in RB)delete RB[k];[...REV,...CSVREV].forEach(r=>{(RB[r.target]=RB[r.target]||[]).push(r)});}
+/* ---- revisi kontributor dari berkas CSV di folder revisi/ (tanpa akun Claude) ---- */
+function splitCSV(line,d){const out=[];let cur="",q=false;for(let i=0;i<line.length;i++){const c=line[i];
+ if(q){if(c==='"'){if(line[i+1]==='"'){cur+='"';i++}else q=false}else cur+=c}
+ else if(c==='"')q=true;else if(c===d){out.push(cur);cur=""}else cur+=c}
+ out.push(cur);return out}
+function parseRevCSV(txt,file){
+ txt=txt.replace(/^\uFEFF/,"").replace(/\r\n?/g,"\n");
+ const rows=[];let cur="",q=false;
+ for(let i=0;i<txt.length;i++){const c=txt[i];if(c==='"'){q=!q;cur+=c}else if(c==="\n"&&!q){rows.push(cur);cur=""}else cur+=c}
+ if(cur.trim())rows.push(cur);
+ const body=rows.filter(r=>r.trim());if(body.length<2)return[];
+ const d=(body[0].split(";").length>body[0].split(",").length)?";":",";
+ const hdr=splitCSV(body[0],d).map(x=>x.trim().toLowerCase().replace(/^"|"$/g,""));
+ const find=(...alts)=>hdr.findIndex(h=>alts.some(a=>h===a||h.indexOf(a)===0));
+ const ix={target:find("target","id"),element:find("elemen","element"),kind:find("jenis","kind"),proposed:find("usulan","proposed"),
+  reason:find("alasan","reason","rujukan"),author:find("kontributor","nama","author","pengusul"),institution:find("institusi","instansi"),
+  date:find("tanggal","date"),status:find("status"),aksi:find("aksi","action"),path:find("path"),
+  oldv:find("nilai_lama","nilai lama"),newv:find("nilai_baru","nilai baru"),tujuan:find("tujuan","target_baru")};
+ if(ix.target<0)return[];
+ const out=[];
+ body.slice(1).forEach((line,n)=>{const c=splitCSV(line,d).map(x=>x.trim().replace(/^"|"$/g,""));
+  const g=i=>i>=0&&c[i]!=null?c[i]:"";const t=g(ix.target).trim().toUpperCase();
+  if(!t||!(VB[t]||GB[t]))return;
+  out.push({_id:file+"#"+(n+2),target:t,element:g(ix.element),kind:g(ix.kind).toLowerCase()||"usulan",proposed:g(ix.proposed),reason:g(ix.reason),
+   authorName:g(ix.author),institution:g(ix.institution),createdAt:g(ix.date),status:(g(ix.status)||"terbuka").toLowerCase(),src:"csv",file:file,
+   aksi:g(ix.aksi).toLowerCase().trim(),path:g(ix.path),nilai_lama:g(ix.oldv),nilai_baru:g(ix.newv),tujuan:g(ix.tujuan).trim(),line:n+2});});
+ return out}
+/* ---------- menerapkan revisi berstatus "diterima" ---------- */
+const NP=p=>String(p||"").replace(/\*/g,"").replace(/\[(i|\d+)\]/g,"").replace(/ /g,"");
+const PLACE=/(Code|Kode|Description|Deskripsi|ECL|\(|Lihat|\/\{|\{)/;
+const concrete=x=>!!x&&!PLACE.test(x)&&x.length<=20&&!/\s/.test(String(x).trim());
+const nval=x=>concrete(x)?x:"~";
+const SKIPEL=/\.(subject|patient|encounter|context|performer|performer\.actor|effectiveDateTime|recorder|author|source|authored)$/;
+const ANCSYS=["http://fhir.org/guides/who/anc-cds/CodeSystem/anc-custom-codes","http://terminology.kemkes.go.id/CodeSystem/anc-custom-codes"];
+const STDSYS=["http://loinc.org","http://snomed.info/sct","http://hl7.org/fhir/sid/icd-10","http://terminology.kemkes.go.id","http://sys-ids.kemkes.go.id/kfa"];
+const ORIG={v:{},g:{}};
+function snapshot(){D.V.forEach(v=>ORIG.v[v.id]={el:JSON.parse(JSON.stringify(v.el)),g:v.g});
+ D.G.forEach(g=>ORIG.g[g.id]={m:g.m.slice(),status:g.status,els:g.els,ex:g.ex});}
+function restore(){D.V.forEach(v=>{const o=ORIG.v[v.id];v.el=JSON.parse(JSON.stringify(o.el));v.g=o.g;delete v.rev;});
+ D.G.forEach(g=>{const o=ORIG.g[g.id];g.m=o.m.slice();g.status=o.status;g.els=o.els;g.ex=o.ex;delete g.applied;delete g.empty;delete g.forced;});}
+function velements(v){const out=[],idx={},sys={};
+ const push=(k,coded)=>{if(!idx[k]){idx[k]={key:k,coded:!!coded,star:false,opts:[],vals:[],lists:[]};out.push(idx[k])}return idx[k]};
+ v.el.forEach(e=>{const raw=e[0],np=NP(raw),star=String(raw).startsWith("*"),lid=e[3];
+  if(lid&&D.L[lid]){const L=D.L[lid],coded=(L.cols||[]).indexOf("system")>=0;const E=push(np,coded);E.star=E.star||star;E.lists.push(lid);
+   if(coded)L.rows.forEach(r=>E.opts.push([r[0]||"",r[1]||"",r[2]||"",r[3]||""]));
+   else L.rows.forEach(r=>E.vals.push([String(r[0]||""),r[1]||""]));return;}
+  if(/\.(system|code|display)$/.test(np)){const pre=np.replace(/\.(system|code|display)$/,"");const E=push(pre,true);E.star=E.star||star;
+   if(np.endsWith(".system"))sys[pre]=e[1];
+   else if(np.endsWith(".code"))E.opts.push([sys[pre]||"",e[1],"",e[2]||""]);
+   else{const last=E.opts[E.opts.length-1];if(last&&!last[2])last[2]=e[1];}return;}
+  const E=push(np,false);E.star=E.star||star;E.vals.push([e[1],e[2]||""]);});
+ return out}
+function mainCodes(v){const out=[];velements(v).forEach(e=>{if(!/\.(code|type|vaccineCode|medicationCodeableConcept)(\.coding)?$/.test(e.key))return;
+ e.opts.forEach(o=>{if(concrete(o[1])&&STDSYS.some(x=>String(o[0]).indexOf(x)===0))out.push(o[1])})});return out}
+function groupEls(g){const order=[],E={},N=g.m.length;
+ g.m.forEach(id=>{velements(VB[id]).forEach(x=>{
+  if(!E[x.key]){E[x.key]={key:x.key,coded:x.coded,star:false,ids:[],opts:{},vals:{},lists:{}};order.push(x.key)}
+  const e=E[x.key];e.coded=e.coded||x.coded;e.star=e.star||x.star;if(!e.ids.includes(id))e.ids.push(id);
+  x.opts.forEach(o=>{const k=String(o[0]).replace(/\/$/,"")+"|"+o[1];const t=e.opts[k]||(e.opts[k]={s:o[0],c:o[1],d:o[2],k:o[3],ids:[]});e.opts[k]=t;
+   if(!t.d&&o[2])t.d=o[2];if(!t.k&&o[3])t.k=o[3];if(!t.ids.includes(id))t.ids.push(id)});
+  x.vals.forEach(o=>{const k=nval(o[0]);const t=e.vals[k]||(e.vals[k]={v:o[0],k:o[1],ids:[]});e.vals[k]=t;if(!t.ids.includes(id))t.ids.push(id)});
+  x.lists.forEach(l=>{(e.lists[l]=e.lists[l]||[]).push(id)});})});
+ const els=order.map(k=>{const e=E[k];
+  const body=e.coded?Object.keys(e.opts).map(x=>{const o=e.opts[x];return [o.s,o.c,o.d,o.k,o.ids]}):Object.keys(e.vals).map(x=>{const o=e.vals[x];return [o.v,o.k,o.ids]});
+  return [e.key,e.coded?1:0,e.star?1:0,e.ids,body,Object.keys(e.lists).map(l=>[l,[...new Set(e.lists[l])]])]});
+ const ex=[];
+ if(N>1){const res={};g.m.forEach(i=>{(res[VB[i].res]=res[VB[i].res]||[]).push(i)});
+  if(Object.keys(res).length>1)ex.push(["Resource","beda",Object.keys(res).map(r=>[r,res[r]])]);
+  els.forEach(a=>{const key=a[0],coded=a[1],eids=a[3],body=a[4];
+   if(SKIPEL.test(key))return;
+   const missing=g.m.filter(i=>!eids.includes(i));const sig={};
+   eids.forEach(i=>{const parts=coded?body.filter(o=>o[4].includes(i)&&!ANCSYS.includes(o[0])).map(o=>String(o[1]+" "+(o[2]||"")).trim())
+     :body.filter(o=>o[2].includes(i)&&nval(o[0])!=="~").map(o=>String(o[0]).slice(0,60));
+    sig[i]=parts.sort().join("; ")});
+   const distinct=new Set(Object.keys(sig).map(i=>sig[i]).filter(x=>x));
+   if(!missing.length&&distinct.size<=1)return;
+   const by={};Object.keys(sig).forEach(i=>{(by[sig[i]]=by[sig[i]]||[]).push(i)});
+   const parts=Object.keys(by).map(x=>[x||"(ada, nilai tidak dirinci)",by[x]]);
+   if(missing.length)parts.push(["(elemen tidak dipakai)",missing]);
+   ex.push([key,distinct.size>1?"beda":"sebagian",parts]);});}
+ return {els:els,ex:ex}}
+function recalcGroup(g){const r=groupEls(g);g.els=r.els;g.ex=r.ex;
+ if(!g.m.length){g.empty=true;g.status="Kosong (dipindahkan)";return}
+ if(g.m.length===1){g.status="Unik";return}
+ const beda=g.ex.filter(x=>x[1]==="beda"&&x[0]!=="Resource").length,sebagian=g.ex.filter(x=>x[1]==="sebagian").length,resbeda=g.ex.some(x=>x[0]==="Resource");
+ const codes=g.m.map(i=>new Set(mainCodes(VB[i])));
+ const shared=codes.length&&codes.every(c=>c.size)&&[...codes[0]].some(c=>codes.every(s=>s.has(c)));
+ if(!beda&&!sebagian&&!resbeda)g.status="Identik";
+ else if(!beda&&!resbeda)g.status="Saling melengkapi";
+ else if(shared)g.status="Kode sama, isi beda";
+ else g.status="Maksud sama, kode/struktur beda";}
+function applyRow(r,touched){const a=(r.aksi||"").replace(/\s+/g,"-");
+ if(!a||a==="catatan")return "";
+ const t=r.target,v=VB[t],g=GB[t]||(v?GB[v.g]:null);const path=String(r.path||r.element||"").trim();
+ const note=x=>{const gg=g||(v?GB[v.g]:null);if(gg){(gg.applied=gg.applied||[]).push(x);touched.add(gg.id)}if(v)v.rev=true;return x};
+ if(a==="ganti-nilai"){if(!v||!path||!r.nilai_baru)return "";let n=0;
+  v.el.forEach(e=>{if(NP(e[0])!==NP(path))return;if(r.nilai_lama&&String(e[1]).trim()!==String(r.nilai_lama).trim())return;
+   if(e[1]===r.nilai_baru)return;if(e.length<4)e[3]=null;e[4]="rev";e[5]=e[5]||e[1];e[1]=r.nilai_baru;n++;});
+  if(!n)return "";return note(`${t} · ${path}: “${r.nilai_lama||"semua nilai"}” → “${r.nilai_baru}”`)}
+ if(a==="pindah-konsep"){const mv=v||VB[String(r.nilai_lama||"").trim().toUpperCase()]||VB[String(r.path||"").trim().toUpperCase()];
+  if(!mv||!r.tujuan)return "";const t2=mv.id;const vv=mv;
+  const tj=String(r.tujuan).trim().toUpperCase();const dst=GB[tj]?tj:(VB[tj]?VB[tj].g:"");if(!dst||dst===vv.g)return "";
+  const old=GB[vv.g];old.m=old.m.filter(x=>x!==t2);GB[dst].m.push(t2);vv.g=dst;vv.rev=true;
+  touched.add(old.id);touched.add(dst);(GB[dst].applied=GB[dst].applied||[]).push(`${t2} dipindahkan ke sini dari ${old.id}`);
+  (old.applied=old.applied||[]).push(`${t2} dipindahkan ke ${dst}`);
+  return `${t2} dipindahkan dari ${old.id} ke ${dst}`}
+ if(a==="tandai-status"){if(!g)return "";const st=(r.tujuan||r.nilai_baru||"Sudah diputuskan").trim();
+  g.forced=st;touched.add(g.id);(g.applied=g.applied||[]).push(`status ditandai “${st}”`);return `${g.id} status → ${st}`}
+ if(a==="tambah-pilihan"){if(!v||!path||!r.nilai_baru)return "";
+  const p=String(r.nilai_baru).split("|").map(x=>x.trim());
+  v.el.push([path+".system",p[0]||"",""," ",false],[path+".code",p[1]||"",r.usulan||"",null,"rev"],[path+".display",p[2]||"",""," ",false]);
+  v.rev=true;return note(`${t} · ${path}: tambah pilihan ${p.join(" | ")}`)}
+ if(a==="tambah-elemen"){if(!v||!path)return "";
+  v.el.push([path,r.nilai_baru||r.usulan||"",r.alasan||"",null,"rev"]);v.rev=true;
+  return note(`${t}: tambah elemen ${path} = ${r.nilai_baru||r.usulan||""}`)}
+ return ""}
+let APPLIED=[];
+function applyRevisions(){restore();APPLIED=[];
+ const rows=[...REV,...CSVREV].filter(r=>(r.status||"").toLowerCase()==="diterima"&&r.aksi&&r.aksi!=="catatan")
+  .sort((a,b)=>String(a.createdAt||"").localeCompare(String(b.createdAt||""))||String(a.file||"").localeCompare(String(b.file||""))||(a.line||0)-(b.line||0));
+ const touched=new Set();
+ rows.forEach(r=>{const msg=applyRow(r,touched);if(msg){r.applied=true;APPLIED.push({r:r,msg:msg})}else r.applied=false;});
+ touched.forEach(gid=>{const g=GB[gid];if(g)recalcGroup(g)});
+ touched.forEach(gid=>{const g=GB[gid];if(g&&g.forced)g.status=g.forced});
+ D.V.forEach(v=>{v._s=(JSON.stringify([v.id,v.t,v.tahap,v.kel,v.var,v.res,v.el,v.cat,v.frek,(D.DS[v.id]||[])[1]])).toLowerCase()});
+ D.G.forEach(g=>{g._s=(g.id+" "+g.label+" "+g.status+" "+g.note+" "+JSON.stringify(g.ex)+" "+g.m.map(i=>VB[i]._s).join(" ")).toLowerCase()});}
+async function loadCSVRev(){
+ let names=[];const api=(D.GH||"").replace("https://github.com/","https://api.github.com/repos/");
+ if(api){try{const r=await fetch(api+"/contents/docs/revisi?ref=main",{cache:"no-store"});
+  if(r.ok){const j=await r.json();if(Array.isArray(j))names=j.filter(f=>f.type==="file"&&/\.(csv|tsv|txt)$/i.test(f.name)&&!/^template/i.test(f.name)).map(f=>f.name)}}catch(e){}}
+ if(!names.length){try{const r=await fetch("revisi/daftar.json?t="+Date.now(),{cache:"no-store"});if(r.ok){const j=await r.json();if(Array.isArray(j))names=j}}catch(e){}}
+ if(!names.length)names=["revisi.csv"];
+ const out=[];
+ for(const n of names){try{const r=await fetch("revisi/"+encodeURIComponent(n)+"?t="+Date.now(),{cache:"no-store"});
+  if(!r.ok)continue;out.push(...parseRevCSV(await r.text(),n));}catch(e){}}
+ CSVREV=out;rebuildRB();applyRevisions();
+ if(out.length){const y=window.scrollY;render();window.scrollTo(0,y);if(drawerId)renderDrawer();}}
 function stMatch(g,ss,ids){if(!ss)return true;if(ss==="__rev")return ids.some(i=>revFor(i).length);if(ss==="__open")return ids.some(i=>revFor(i).some(r=>r.status==="terbuka"));return g.status===ss}
-const ST={"Saling melengkapi":"st-ok","Unik":"st-uni","Identik":"st-ok","Identik (disalin)":"st-ok","Kode sama, isi beda":"st-warn","Maksud sama, kode/struktur beda":"st-bad","Nama sama, kode beda":"st-bad"};
+const ST={"Saling melengkapi":"st-ok","Unik":"st-uni","Identik":"st-ok","Kode sama, isi beda":"st-warn","Maksud sama, kode/struktur beda":"st-bad","Nama sama, kode beda":"st-bad"};
 const EXPL0={"Saling melengkapi":"Perbedaannya hanya berupa elemen atau pilihan tambahan di salah satu use case — tidak ada nilai yang bertentangan, sehingga gabungannya bisa dianggap versi yang lebih lengkap.","Kode sama, isi beda":"Kode konsep utamanya sama, tetapi ada nilai yang bertentangan pada elemen yang sama (mis. unit, category, kode pilihan). Coding tambahan anc-custom-codes tidak dihitung.","Maksud sama, kode/struktur beda":"Konsepnya setara, tetapi kode, category, atau resource yang dipakai berbeda — potensi inkonsistensi dokumentasi."};
-const EXPL=Object.assign({},EXPL0,{"Identik":"Semua elemen & nilai sama.","Identik (disalin)":"Detail disalin dari modul Rawat Jalan karena playbook merujuk ke sana."});
+const EXPL=Object.assign({},EXPL0,{"Identik":"Semua elemen & nilai sama di lebih dari satu playbook."});
 document.getElementById("src").innerHTML=D.T.map(([k,n])=>`<li><b>${esc(n)}</b> — ${esc(D.S[k]||"")}</li>`).join("");
 const tsel=document.getElementById("tsel"),vsel=document.getElementById("vsel"),ssel=document.getElementById("ssel"),q=document.getElementById("q");
-tsel.innerHTML=D.T.map(([k,n])=>`<option value="${k}">${esc(k)} — ${esc(n)} (${D.V.filter(v=>v.t===k).length})</option>`).join("")+`<option value="K">Konsolidasi — semua use case (${D.G.length} konsep)</option><option value="R">Ringkasan Resource (${Object.keys(D.RS).length} resource)</option><option value="DOC">Dokumentasi & progres pekerjaan</option>`;
+tsel.innerHTML=D.T.map(([k,n])=>`<option value="${k}">${esc(k)} — ${esc(n)} (${D.V.filter(v=>v.t===k).length})</option>`).join("")+`<option value="K">Konsolidasi — semua use case (${D.G.length} konsep)</option><option value="R">Ringkasan Resource (${Object.keys(D.RS).length} resource)</option><option value="DOC">Dokumentasi & progres pekerjaan</option><option value="REV">Revisi kontributor</option>`;
 ssel.innerHTML='<option value="">Semua status</option>'+[...new Set(D.G.map(g=>g.status))].map(s=>`<option>${esc(s)}</option>`).join("")+'<option value="__rev">Ada revisi kontributor</option><option value="__open">Revisi masih terbuka</option>';
 document.getElementById("snap").textContent=D.SNAP;
-let view=D.T[0][0], focus=null, rsel=null; const open=new Set();
+let view="K", focus=null, rsel=null; const open=new Set();
 function qre(){const qq=q.value.trim();return qq.length<2?null:new RegExp(qq.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"),"gi")}
 function mark(root){const re=qre();if(!re||!root)return;const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:n=>{if(!n.data.trim()||n.parentNode.closest("script,style,mark,select,option,textarea"))return 2;re.lastIndex=0;return re.test(n.data)?1:2}});
  const ns=[];while(w.nextNode()&&ns.length<5000)ns.push(w.currentNode);
@@ -205,6 +358,7 @@ function mark(root){const re=qre();if(!re||!root)return;const w=document.createT
 function who(ids,all){if(all&&ids.length===all)return '<span class="dim">semua</span>';const by={};ids.forEach(i=>{const t=VB[i].t;(by[t]=by[t]||[]).push(i)});
  return Object.entries(by).map(([t,is])=>`<a class="lk" href="#${is[0]}" data-go="${t}" data-id="${is[0]}" title="${esc(is.map(i=>i+" "+VB[i].var).join("\n"))}">${esc(t)}${is.length>1?` ×${is.length}`:""}</a>`).join(", ")}
 const cut=(t,n)=>t.length>n?t.slice(0,n)+"…":t;
+function appliedHTML(g){return g.applied&&g.applied.length?`<div class="pair"><h4>Revisi kontributor yang sudah diterapkan (${g.applied.length})</h4><ul>${g.applied.map(x=>`<li>${esc(x)}</li>`).join("")}</ul><div class="dim" style="font-size:11.5px">Status dan perbandingan di bawah sudah dihitung ulang dengan revisi ini. Ringkasan Resource, Excel, dan JSON masih versi bangunan terakhir.</div></div>`:""}
 function exHTML(g){if(!g.ex.length)return '<p class="dim" style="font-size:12.5px">Tidak ada perbedaan elemen yang terdeteksi otomatis.</p>';
  const B=g.ex.filter(x=>x[1]==="beda"),S=g.ex.filter(x=>x[1]==="sebagian");
  const li=x=>`<li><code>${esc(x[0])}</code><ul class="parts">${x[2].map(([t,ids])=>`<li><b>${who(ids)}</b>: ${esc(cut(t,420))}</li>`).join("")}</ul></li>`;
@@ -230,24 +384,50 @@ function elRows(v){
  const alsoMap={};v.also.forEach(([p,c,o])=>alsoMap[p+"|"+c]=o);const rows=[];
  v.el.forEach((e,j)=>{const np=e[0].replace(/\*/g,"").replace(/\[(i|\d)\]/g,"").replace(/ /g,"");const rep=j>0&&v.el[j-1][0]===e[0];
   const al=alsoMap[np+"|"+e[1]]||[];
-  rows.push(`<td class="path${rep?" rep":""}${e[0].startsWith("*")?" mand":""}" data-l="Elemen">${esc(e[0])}</td><td class="val" data-l="Nilai">${esc(e[1])}</td><td class="ket" data-l="Keterangan">${esc(e[2])}</td><td class="also" data-l="Kode juga di">${limited(al,vlink,3)}</td>`);
+  rows.push(`<td class="path${rep?" rep":""}${e[0].startsWith("*")?" mand":""}" data-l="Elemen">${esc(e[0])}</td><td class="val" data-l="Nilai">${esc(e[1])}${e[4]==="rev"?` <span class="tag rev" title="${e[5]?"Nilai dasar SATUSEHAT: "+esc(e[5]):"Ditambahkan lewat revisi kontributor"}">revisi</span>`:""}</td><td class="ket" data-l="Keterangan">${esc(e[2])}</td><td class="also" data-l="Kode juga di">${limited(al,vlink,3)}</td>`);
   if(e[3]) rows.push(`<td colspan="4" class="inl">${listTable(e[3],v.id)}</td>`);});
  return rows;}
+const BLOCKS={};
+function stepNo(t){const m=/^(\d{1,2})[.]/.exec(t||"");return m?+m[1]:999}
+function blocks(t){if(BLOCKS[t])return BLOCKS[t];
+ const out=[],ix={};
+ D.V.filter(v=>v.t===t).forEach(v=>{if(!(v.tahap in ix)){ix[v.tahap]={tahap:v.tahap,vars:[],ref:null};out.push(ix[v.tahap])}ix[v.tahap].vars.push(v)});
+ (D.REF||[]).filter(r=>r.t===t).forEach(r=>{
+  if(ix[r.tahap]){ix[r.tahap].ref=r;return}
+  const b={tahap:r.tahap,vars:[],ref:r},n=stepNo(r.tahap);
+  let at=out.findIndex(x=>stepNo(x.tahap)>n);if(at<0)at=out.length;
+  out.splice(at,0,b);ix[r.tahap]=b;});
+ BLOCKS[t]=out;return out}
+function refRow(r,cols){const links=r.tg.map(([c,j,u])=>`<a class="lk" href="${esc(u)}" target="_blank" rel="noopener">Buka playbook ${esc(j)} ↗</a>`+(TN[c]?` · <a class="lk" href="#" data-go="${c}" data-id="">lihat ${esc(c)} di dokumentasi ini</a>`:"")).join("<br>");
+ return `<tr class="ref"><td colspan="${cols}"><span class="rj">⤷ Mengikuti modul lain</span> — ${esc(r.note)}${r.kutipan?`<div class="dim" style="font-size:11.5px;margin-top:2px">“${esc(r.kutipan)}”</div>`:""}${r.isi?`<div class="dim" style="font-size:11.5px;margin-top:2px">Bagian yang dirujuk: ${esc(r.isi)}</div>`:""}<div style="margin-top:4px">${links}</div></td></tr>`}
+function supRows(v){if(!v.sup||!v.sup.length)return [];
+ return v.sup.map(x=>{const key=x[0],coded=x[1],star=x[2],body=x[3],lists=x[4],src=x[5];
+  const who=src.map(i=>`<a class="lk" href="#${i}" data-go="${VB[i].t}" data-id="${i}">${esc(VB[i].t)} · ${i}</a>`).join(", ");
+  let val="";
+  if(coded)val=body.slice(0,3).map(o=>`<code>${esc(o[1])}</code> ${esc(o[2]||"")}`).join("<br>")+(body.length>3?`<div class="dim">+${body.length-3} pilihan lagi</div>`:"");
+  else val=body.slice(0,3).map(o=>esc(o[0])).join("<br>")+(body.length>3?`<div class="dim">+${body.length-3} nilai lagi</div>`:"");
+  if(!val)val=lists.length?'<span class="dim">(pilih dari daftar di bawah)</span>':'<span class="dim">(nilai tidak dirinci)</span>';
+  const lst=lists.length?lists.map(l=>listTable(l,v.id)).join(""):"";
+  return `<td class="path" data-l="Elemen">${star?"*":""}${esc(key)} <span class="tag sup">pelengkap</span></td><td class="val" data-l="Nilai">${val}</td><td class="ket" data-l="Keterangan">Dilengkapi dari playbook lain: ${who}${lst}</td><td class="also"></td>`});}
 function renderTitle(){
  const qq=q.value.toLowerCase().trim(),sv=vsel.value,ss=ssel.value;
  let h='<div class="tbl"><table class="main"><colgroup><col style="width:22%"><col style="width:27%"><col style="width:21%"><col style="width:17%"><col style="width:13%"></colgroup><thead><tr><th>Variabel & muncul di</th><th>Elemen / path FHIR</th><th>Nilai</th><th>Keterangan</th><th>Kode juga dipakai di</th></tr></thead><tbody>';
- let n=0,prev=null;
- D.V.filter(v=>v.t===view).forEach(v=>{const g=GB[v.g];
-  if(sv&&v.id!==sv)return;if(!stMatch(g,ss,[v.id,g.id]))return;if(qq&&!v._s.includes(qq))return;
-  if(v.tahap!==prev){h+=`<tr class="step"><td colspan="5">${esc(v.tahap)}</td></tr>`;prev=v.tahap}
+ let n=0;
+ blocks(view).forEach(B=>{
+  const vs=B.vars.filter(v=>{const g=GB[v.g];return !(sv&&v.id!==sv)&&stMatch(g,ss,[v.id,g.id])&&!(qq&&!v._s.includes(qq))});
+  const refOK=B.ref&&!sv&&!ss&&(!qq||(B.tahap+" "+B.ref.note+" "+B.ref.kutipan+" "+B.ref.isi).toLowerCase().includes(qq));
+  if(!vs.length&&!refOK)return;
+  h+=`<tr class="step"><td colspan="5">${esc(B.tahap)}</td></tr>`;
+  if(refOK)h+=refRow(B.ref,5);
+  vs.forEach(v=>{const g=GB[v.g];
   n++;const others=g.m.filter(x=>x!==v.id);
   let mu=`<div class="muncul"><b>Konsolidasi</b>${glink(g.id)}`;
   if(others.length)mu+=`<b>Juga muncul di</b>`+limited(others,vlink);
   if(g.rel.length)mu+=`<b>Terkait</b>`+limited(g.rel.map(r=>r[0]),glink,4);
   mu+="</div>";
-  const rows=elRows(v);
-  rows.forEach((c,j)=>{h+=`<tr class="${j?"sub":"first"}">`+(j?"":`<td class="var" rowspan="${rows.length}" id="${v.id}" data-l="Variabel"><span class="id">${v.id}</span><span class="kel">${esc(v.kel)}</span><span class="nm">${esc(v.var)} ${descBtn(v.id)}</span><span class="pill">${esc(v.res)}</span>${v.a?'<span class="pill" style="background:var(--warn-bg);color:var(--warn)" title="Diekstraksi otomatis dari halaman/PDF SATUSEHAT, belum dicek manual">otomatis</span>':""}${badge(g)}${revBtn(v.id)}${v.frek?`<span class="freq">${esc(v.frek)}</span>`:""}${mu}${v.cat?`<span class="note">${esc(v.cat)}</span>`:""}</td>`)+c+"</tr>"});
- });
+  const rows=elRows(v),sup=supRows(v);const all=rows.concat(sup);
+  all.forEach((c,j)=>{h+=`<tr class="${j>=rows.length?"sub sup":(j?"sub":"first")}">`+(j?"":`<td class="var" rowspan="${all.length}" id="${v.id}" data-l="Variabel"><span class="id">${v.id}</span><span class="kel">${esc(v.kel)}</span><span class="nm">${esc(v.var)} ${descBtn(v.id)}</span><span class="pill">${esc(v.res)}</span>${v.a?'<span class="pill" style="background:var(--warn-bg);color:var(--warn)" title="Diekstraksi otomatis dari halaman/PDF SATUSEHAT, belum dicek manual">otomatis</span>':""}${v.rev?'<span class="tag rev" title="Ada revisi kontributor yang sudah diterapkan pada variabel ini">direvisi</span>':""}${badge(g)}${revBtn(v.id)}${v.frek?`<span class="freq">${esc(v.frek)}</span>`:""}${mu}${v.cat?`<span class="note">${esc(v.cat)}</span>`:""}${v.sup&&v.sup.length?`<span class="note">${v.sup.length} elemen pelengkap dari playbook lain ditampilkan di bawah baris variabel ini.</span>`:""}</td>`)+c+"</tr>"});
+ });});
  document.getElementById("out").innerHTML=h+(n?"":'<tr><td colspan="5" class="dim">Tidak ada variabel yang cocok dengan filter.</td></tr>')+"</tbody></table></div>";
  document.getElementById("count").textContent=n+" variabel";}
 function optTable(rows,all,std){
@@ -276,7 +456,7 @@ function renderK(){
  D.G.forEach(g=>{if(sv&&g.id!==sv)return;if(!stMatch(g,ss,[g.id,...g.m]))return;
   if(qq&&!g._s.includes(qq))return;n++;
   const titles=D.T.map(t=>t[0]).filter(t=>g.m.some(i=>VB[i].t===t));const isO=open.has(g.id)||(qq&&AUTO_OPEN.has(g.id));
-  h+=`<div class="krow${isO?" open":""}" id="${g.id}"><div class="khead" data-k="${g.id}" role="button" tabindex="0" aria-expanded="${isO}"><span class="car">▶</span><span class="id">${g.id}</span><span class="lb">${esc(g.label)}</span><span>${badge(g)}${revBtn(g.id,true)}</span><span class="tt">${titles.map(t=>`<span class="pill">${esc(t)}</span>`).join("")}</span><span class="n">${g.m.length} var</span></div>${isO?`<div class="kbody">${kbody(g)}</div>`:""}</div>`;});
+  h+=`<div class="krow${isO?" open":""}" id="${g.id}"><div class="khead" data-k="${g.id}" role="button" tabindex="0" aria-expanded="${isO}"><span class="car">▶</span><span class="id">${g.id}</span><span class="lb">${esc(g.label)}${g.applied?'<span class="tag rev" title="Ada revisi kontributor yang sudah diterapkan">direvisi</span>':""}</span><span>${badge(g)}${revBtn(g.id,true)}</span><span class="tt">${titles.map(t=>`<span class="pill">${esc(t)}</span>`).join("")}</span><span class="n">${g.m.length} var</span></div>${isO?`<div class="kbody">${kbody(g)}</div>`:""}</div>`;});
  document.getElementById("out").innerHTML=h+(n?"":'<div class="dim" style="padding:12px">Tidak ada konsep yang cocok dengan filter.</div>')+"</div>";
  document.getElementById("count").textContent=n+" konsep · "+open.size+" terbuka";}
 function toggleK(id){const wasO=open.has(id)||AUTO_OPEN.has(id);AUTO_OPEN.delete(id);wasO?open.delete(id):open.add(id);const row=document.getElementById(id);if(!row)return;const isO=open.has(id);row.classList.toggle("open",isO);row.querySelector(".khead").setAttribute("aria-expanded",isO);
@@ -317,13 +497,23 @@ function renderR(){const qq=q.value.toLowerCase().trim();let h="";const out=docu
  if(R.miss.length)h+=`<div class="sec"><h3>Variabel tanpa elemen inti (${R.miss.length})</h3><p class="dim" style="font-size:12px;margin:0 0 6px">Variabel ${esc(rsel)} yang tidak memuat elemen yang biasanya ada (Inti). Bisa berarti playbook memang tidak merinci, atau ada yang terlewat.</p><details class="rel"><summary>Tampilkan daftar</summary><div class="rb">${R.miss.map(([i,m])=>`<div class="ev">${vlink(i).replace('lkl"','lkl" style="display:inline"')} — tidak ada: ${m.map(x=>`<code>${esc(x)}</code>`).join(", ")}</div>`).join("")}</div></details></div>`;
  out.innerHTML=h;document.getElementById("count").textContent=R.els.length+" elemen";mark(out);}
 document.addEventListener("toggle",e=>{const d=e.target;if(!(d.matches&&d.matches("details.rel[data-ri]"))||!d.open)return;const b=d.querySelector(".rb");if(b.innerHTML)return;const R=D.RS[rsel];b.innerHTML=relBody(R.els[+d.dataset.ri],R);mark(b);},true);
-function render(){if(view==="DOC"){vsel.hidden=ssel.hidden=true;document.getElementById("stats").hidden=true;document.getElementById("openall").hidden=document.getElementById("closeall").hidden=true;tsel.value=view;const o=document.getElementById("out");o.innerHTML=`<article class="doc">${D.DOC}</article>`;document.getElementById("count").textContent="";mark(o);return;}
+function renderREV(){const all=[...REV,...CSVREV],out=document.getElementById("out"),qq=q.value.toLowerCase().trim();
+ const rows=all.filter(r=>!qq||JSON.stringify(r).toLowerCase().includes(qq));
+ const nm=r=>esc(r.authorName||PROF[r.author]||"Kontributor");
+ let h=`<p class="dim" style="font-size:12.5px;margin:6px 0">Usulan revisi dari kontributor, terpisah dari data dasar SATUSEHAT. Kontributor mengisi form lewat tombol <b>Revisi</b> di variabel/konsep mana pun, lalu klik <b>Unduh usulan (.csv)</b> dan mengirim berkasnya ke pengelola. Pengelola cukup mengunggah berkas itu ke folder <code>docs/revisi/</code> di GitHub — halaman ini langsung memuatnya, tanpa perlu membangun ulang apa pun.<br>Baris yang mengisi kolom <code>aksi</code> (<code>ganti-nilai</code>, <code>pindah-konsep</code>, <code>tandai-status</code>, <code>tambah-pilihan</code>, <code>tambah-elemen</code>) <b>diterapkan ke isi halaman</b> begitu kolom <code>status</code> diubah menjadi <code>diterima</code>; status konsep dan perbandingan antar use case ikut dihitung ulang. Ringkasan Resource, Excel, dan JSON tetap versi bangunan terakhir sampai dibangun ulang.</p>`;
+ if(!all.length)h+=`<div class="dim" style="padding:12px">Belum ada revisi kontributor yang dimuat. <a class="lk" href="${esc(D.GH)}/tree/main/docs/revisi" target="_blank" rel="noopener">Lihat folder revisi di GitHub</a></div>`;
+ else h+=`<div class="tbl"><table class="main" style="min-width:1000px"><thead><tr><th>Target</th><th>Elemen</th><th>Jenis</th><th>Usulan</th><th>Alasan</th><th>Pengusul</th><th>Tanggal</th><th>Status</th><th>Aksi otomatis</th><th>Sumber</th></tr></thead><tbody>${rows.map(r=>{
+  const t=VB[r.target]?`${esc(VB[r.target].t)} · ${esc(VB[r.target].var)}`:(GB[r.target]?esc(GB[r.target].label):esc(r.target));
+  return `<tr><td><a class="lk" href="#${r.target}" data-go="${GB[r.target]?"K":(VB[r.target]?VB[r.target].t:"K")}" data-id="${r.target}">${esc(r.target)}</a><div class="dim" style="font-size:11px">${t}</div></td><td class="path">${esc(r.element||"")}</td><td>${esc(KIND[r.kind]||r.kind||"")}</td><td class="ket">${esc(r.proposed||"")}</td><td class="ket">${esc(r.reason||"")}</td><td>${nm(r)}${r.institution?`<div class="dim" style="font-size:11px">${esc(r.institution)}</div>`:""}</td><td class="dim">${esc((r.createdAt||"").slice(0,10))}</td><td>${esc(r.status||"")}</td><td style="font-size:11.5px">${r.aksi?`<code>${esc(r.aksi)}</code>${r.applied?' <span class="tag rev">diterapkan</span>':(r.status==="diterima"?' <span class="tag sebagian">gagal / tidak cocok</span>':' <span class="dim">menunggu status “diterima”</span>')}`:'<span class="dim">catatan saja</span>'}</td><td class="dim" style="font-size:11px">${r.src==="csv"?esc(r.file):"halaman Claude"}</td></tr>`}).join("")}</tbody></table></div>`;
+ out.innerHTML=h;document.getElementById("count").textContent=rows.length+" revisi";mark(out);}
+function render(){if(view==="REV"){vsel.hidden=ssel.hidden=true;document.getElementById("stats").hidden=true;document.getElementById("openall").hidden=document.getElementById("closeall").hidden=true;tsel.value=view;renderREV();return;}
+ if(view==="DOC"){vsel.hidden=ssel.hidden=true;document.getElementById("stats").hidden=true;document.getElementById("openall").hidden=document.getElementById("closeall").hidden=true;tsel.value=view;const o=document.getElementById("out");o.innerHTML=`<article class="doc">${D.DOC}</article>`;document.getElementById("count").textContent="";mark(o);return;}
  const r=view==="R";vsel.hidden=r;ssel.hidden=r;document.getElementById("stats").hidden=r;if(!r){fillVsel();stats();}const k=view==="K";document.getElementById("openall").hidden=!k;document.getElementById("closeall").hidden=!k;
  r?renderR():(k?renderK():renderTitle());tsel.value=view;if(!r)mark(document.getElementById("out"));
  if(focus){const el=document.getElementById(focus);if(el){el.scrollIntoView({block:"start"});window.scrollBy(0,-70);(el.closest("tr")||el).classList.add("hl");}focus=null;}}
 function go(v,id){if(v!==view){view=v;rsel=null;vsel.value="";ssel.value="";q.value="";}if(id&&v==="K")open.add(id);focus=id;if(id&&!document.getElementById(id)){vsel.value="";ssel.value="";q.value="";}render();}
 function showPop(gid,anchor){const g=GB[gid],p=document.getElementById("pop");
- p.innerHTML=`<button class="x" type="button" aria-label="Tutup">×</button><h3>${esc(g.id)} · ${esc(g.label)}</h3><span class="st ${ST[g.status]}">${esc(g.status)}</span> <span class="dim" style="font-size:12px">${g.m.length} variabel: ${who(g.m)}</span><p style="font-size:12.5px;margin:6px 0">${esc(EXPL[g.status]||"")}</p>${g.note?`<p style="font-size:12.5px;margin:6px 0"><b>Catatan:</b> ${esc(g.note)}</p>`:""}${exHTML(g)}`;
+ p.innerHTML=`<button class="x" type="button" aria-label="Tutup">×</button><h3>${esc(g.id)} · ${esc(g.label)}</h3><span class="st ${ST[g.status]}">${esc(g.status)}</span> <span class="dim" style="font-size:12px">${g.m.length} variabel: ${who(g.m)}</span><p style="font-size:12.5px;margin:6px 0">${esc(EXPL[g.status]||"")}</p>${g.note?`<p style="font-size:12.5px;margin:6px 0"><b>Catatan:</b> ${esc(g.note)}</p>`:""}${appliedHTML(g)}${exHTML(g)}`;
  placePop(p,anchor);}
 function showDesc(id,anchor){const v=VB[id],d=D.DS[id]||[0,"",""],p=document.getElementById("pop");
  p.innerHTML=`<button class="x" type="button" aria-label="Tutup">×</button><h3>${esc(v.var)}</h3><span class="id">${id} · ${esc(TN[v.t]||v.t)} · ${esc(v.tahap)}</span><div style="margin:6px 0">${d[0]?'<span class="st st-ok">Dari playbook</span>':'<span class="st st-warn">Dibuat Claude — belum diverifikasi</span>'}</div><p style="font-size:13px;margin:6px 0">${esc(d[1])}</p>${d[0]?"":'<p class="dim" style="font-size:11.5px;margin:4px 0">Playbook tidak memuat deskripsi khusus untuk variabel ini; teks di atas disusun otomatis dari nama variabel, resource, kode utama, dan tipe nilainya.</p>'}${d[2]?`<details><summary style="cursor:pointer;font-size:12px">Konteks tahap dari playbook</summary><p style="font-size:12px;margin:4px 0">${esc(d[2])}</p></details>`:""}`;
@@ -348,6 +538,10 @@ function revBtn(id,grp){const ids=grp?[id,...GB[id].m]:[id];const rs=ids.flatMap
 let DB=null,USER=null,ME=null,CANEDIT=false,drawerId=null,PROF={};
 const KIND={resolve:"Resolve perbedaan",usulan:"Usulan revisi nilai",tambahpilihan:"Tambah pilihan jawaban",tambahelemen:"Tambah elemen baru",catatan:"Catatan"};
 const inst0=(()=>{try{return localStorage.getItem("ss_inst")||""}catch(e){return ""}})();
+const REVHDR=["target","elemen","jenis","usulan","alasan","kontributor","institusi","tanggal","status","aksi","path","nilai_lama","nilai_baru","tujuan"];const MYROWS=[];
+function MYNAME(){let n="";try{n=localStorage.getItem("ss_nama")||""}catch(e){}
+ if(!n){n=(prompt("Nama Anda (untuk dicatat sebagai pengusul):")||"").trim();try{localStorage.setItem("ss_nama",n)}catch(e){}}
+ return n}
 async function names(ids){if(!USER)return;const need=ids.filter(i=>i&&!(i in PROF));if(!need.length)return;try{const ps=await USER.profiles(need);for(const i of need)PROF[i]=(ps[i]&&ps[i].name)||""}catch(e){}}
 function openDrawer(id){drawerId=id;document.getElementById("drawer").hidden=false;renderDrawer();}
 async function renderDrawer(){if(!drawerId)return;const isG=drawerId.startsWith("K-");const g=isG?GB[drawerId]:GB[VB[drawerId].g];
@@ -355,13 +549,13 @@ async function renderDrawer(){if(!drawerId)return;const isG=drawerId.startsWith(
  await names(rs.map(r=>r.author));
  document.getElementById("dtitle").textContent=isG?`${g.id} · ${g.label}`:`${drawerId} · ${VB[drawerId].var}`;
  document.getElementById("dsub").innerHTML=`${esc(g.status)} · data dasar: ${esc(D.SNAP)}`;
- let h=`<div class="rev"><span class="src base">SATUSEHAT</span> <b>${esc(g.status)}</b><div class="meta">Data dasar dari dokumen resmi (${esc(D.SNAP)})</div>${g.note?`<div>${esc(g.note)}</div>`:""}${g.ex.length?`<div style="margin-top:6px"><b>Yang perlu dicek / direvisi:</b></div>${exHTML(g)}`:'<div class="meta">Tidak ada perbedaan otomatis.</div>'}</div>`;
+ let h=`<div class="rev"><span class="src base">SATUSEHAT</span> <b>${esc(g.status)}</b><div class="meta">Data dasar dari dokumen resmi (${esc(D.SNAP)})</div>${g.note?`<div>${esc(g.note)}</div>`:""}${appliedHTML(g)}${g.ex.length?`<div style="margin-top:6px"><b>Yang perlu dicek / direvisi:</b></div>${exHTML(g)}`:'<div class="meta">Tidak ada perbedaan otomatis.</div>'}</div>`;
  h+=`<div class="rev"><b>Bandingkan nilai per elemen</b><div class="meta">Pilih elemen di form di bawah untuk melihat nilainya di setiap variabel. Baris hijau = versi acuan yang dipilih.</div><div id="cmpbox"></div></div>`;
  h+=rs.map(r=>`<div class="rev"><span class="src">Revisi kontributor</span> <span class="kind">${esc(KIND[r.kind]||r.kind)}</span> · <b>${esc(r.status)}</b>
-  <div class="meta">${esc(PROF[r.author]||"Kontributor")}${r.institution?" · "+esc(r.institution):""} · ${esc((r.createdAt||"").slice(0,16).replace("T"," "))} · ${esc(r.target)}${r.element?" · "+esc(r.element):""}${r.acuan?" · acuan: "+esc(r.acuan):""}</div>
+  <div class="meta">${esc(r.authorName||PROF[r.author]||"Kontributor")}${r.institution?" · "+esc(r.institution):""} · ${esc((r.createdAt||"").slice(0,16).replace("T"," "))} · ${esc(r.target)}${r.element?" · "+esc(r.element):""}${r.acuan?" · acuan: "+esc(r.acuan):""}${r.file?' · berkas '+esc(r.file):""}</div>
   ${r.newItem?`<div><b>${r.kind==="tambahpilihan"?"Pilihan baru":"Elemen baru"}:</b> <code>${esc(Object.entries(r.newItem).filter(([k,v])=>v!==""&&v!==false).map(([k,v])=>k+"="+v).join(" · "))}</code></div>`:""}
   ${r.proposed?`<div><b>Usulan:</b> ${esc(r.proposed)}</div>`:""}${r.reason?`<div><b>Alasan:</b> ${esc(r.reason)}</div>`:""}<div class="meta">terhadap ${esc(r.baseline||"")}</div>
-  ${CANEDIT?`<div class="acts">${["terbuka","diterima","ditolak"].filter(s=>s!==r.status).map(s=>`<button type="button" data-setst="${r._id}" data-st="${s}">Tandai ${s}</button>`).join("")}</div>`:""}</div>`).join("");
+  ${CANEDIT&&!r.src?`<div class="acts">${["terbuka","diterima","ditolak"].filter(s=>s!==r.status).map(s=>`<button type="button" data-setst="${r._id}" data-st="${s}">Tandai ${s}</button>`).join("")}</div>`:""}</div>`).join("");
  const tgts=isG?[[g.id,"Konsep "+g.id],...g.m.map(i=>[i,i+" · "+VB[i].var])]:[[drawerId,drawerId]];
  const mem=isG?g.m:[drawerId];
  const els=[...new Set(mem.flatMap(i=>VB[i].el.map(e=>e[0])))];
@@ -377,7 +571,13 @@ async function renderDrawer(){if(!drawerId)return;const isG=drawerId.startsWith(
   <label data-k="resolve usulan catatan">Usulan nilai / keputusan<textarea id="rf-prop" maxlength="2000"></textarea></label>
   <label>Alasan / rujukan<textarea id="rf-reason" maxlength="2000"></textarea></label>
   <label>Institusi<input id="rf-inst" maxlength="120" value="${esc(inst0)}" placeholder="mis. Dinkes Kota X / DTO Kemenkes"></label>
-  ${DB?'<button type="submit">Simpan revisi</button>':'<span class="revmsg">Penyimpanan revisi aktif saat halaman dibuka di claude.ai.</span>'}<span class="revmsg" id="rf-msg"></span></form>`;
+  <details><summary style="cursor:pointer;font-size:12px">Aksi otomatis (opsional — untuk pengelola)</summary>
+   <div style="display:grid;gap:6px;margin-top:6px">
+    <select id="rf-aksi"><option value="">— tidak ada, catatan/usulan saja —</option><option value="ganti-nilai">ganti-nilai (ubah nilai/kode elemen)</option><option value="pindah-konsep">pindah-konsep (pindahkan variabel ke konsep lain)</option><option value="tandai-status">tandai-status (tetapkan status konsep)</option><option value="tambah-pilihan">tambah-pilihan (system|code|display)</option><option value="tambah-elemen">tambah-elemen</option></select>
+    <input id="rf-apath" placeholder="path FHIR (mis. Observation.code.coding)"><input id="rf-aold" placeholder="nilai lama (opsional)"><input id="rf-anew" placeholder="nilai baru / system|code|display"><input id="rf-atuj" placeholder="tujuan (konsep K-xxx, ID variabel, atau status baru)">
+    <span class="revmsg">Aksi baru dijalankan halaman setelah pengelola mengubah kolom <code>status</code> menjadi <code>diterima</code> di berkas CSV.</span></div></details>
+  <div class="revbtns">${DB?'<button type="submit">Simpan revisi di halaman ini</button>':''}<button type="button" id="rf-csv">Unduh usulan (.csv)</button><button type="button" id="rf-gh">Kirim lewat GitHub Issue</button><button type="button" id="rf-copy">Salin teks usulan</button></div>
+  <span class="revmsg">Cara termudah tanpa akun apa pun: klik <b>Unduh usulan (.csv)</b>, lalu kirim berkasnya ke pengelola — pengelola tinggal mengunggahnya ke folder <code>docs/revisi/</code> dan halaman ini langsung menampilkannya. ${DB?'“Simpan revisi di halaman ini” hanya untuk kontributor yang diberi akses tulis di halaman Claude. ':''}Punya akun GitHub gratis? Bisa juga lewat GitHub Issue.</span><span class="revmsg" id="rf-msg"></span></form>`;
  document.getElementById("dbody").innerHTML=h;formKind();cmp();}
 function formKind(){const k=(document.getElementById("rf-kind")||{}).value;document.querySelectorAll("#revf [data-k]").forEach(el=>el.hidden=!el.dataset.k.split(" ").includes(k));}
 function cmp(){const box=document.getElementById("cmpbox");if(!box)return;const isG=drawerId.startsWith("K-");const mem=isG?GB[drawerId].m:[drawerId];
@@ -386,6 +586,53 @@ function cmp(){const box=document.getElementById("cmpbox");if(!box)return;const 
  box.innerHTML=`<table class="cmp"><tr><th>Variabel</th><th>Nilai</th><th>Keterangan</th></tr>${mem.map(i=>{const es=VB[i].el.filter(e=>e[0].replace("*","")===el.replace("*",""));
   return `<tr class="${ac===i?"acu":""}"><td>${esc(VB[i].t)} · ${i}</td><td>${es.length?es.map(e=>esc(e[1])+(e[3]?` <span class="id">(${e[3]}: ${D.L[e[3]].rows.map(r=>r[1]).join(", ").slice(0,160)})</span>`:"")).join("<br>"):'<span class="dim">— tidak ada —</span>'}</td><td>${es.map(e=>esc(e[2])).join("<br>")}</td></tr>`}).join("")}</table>`;}
 document.addEventListener("change",e=>{if(e.target.id==="rf-kind")formKind();if(e.target.id==="rf-el"||e.target.id==="rf-acuan")cmp();});
+function collectRev(){const V_=id=>(document.getElementById(id)||{}).value||"";
+ const d={target:V_("rf-target"),element:V_("rf-el"),kind:V_("rf-kind"),acuan:V_("rf-acuan"),proposed:document.getElementById("rf-prop").value.trim(),
+  reason:document.getElementById("rf-reason").value.trim(),institution:document.getElementById("rf-inst").value.trim()};
+ if(d.kind==="tambahpilihan"){d.newItem={list:V_("rf-list"),system:V_("rf-sys").trim(),code:V_("rf-code").trim(),display:V_("rf-disp").trim(),keterangan:V_("rf-ket").trim()};d.element="";d.proposed="";}
+ if(d.kind==="tambahelemen"){d.newItem={path:V_("rf-path").trim(),nilai:V_("rf-val").trim(),keterangan:V_("rf-eket").trim(),wajib:!!(document.getElementById("rf-mand")||{}).checked};d.element="";d.proposed="";}
+ return d;}
+function revText(d){const isG=d.target.startsWith("K-");const g=isG?GB[d.target]:GB[VB[d.target].g];const mem=isG?g.m:[d.target];
+ const nm=isG?`${g.id} · ${g.label}`:`${d.target} · ${VB[d.target].var} (${TN[VB[d.target].t]||VB[d.target].t})`;
+ let cur="";
+ if(d.element){cur=mem.map(i=>{const es=VB[i].el.filter(e=>e[0].replace("*","")===d.element.replace("*",""));
+  return `- ${VB[i].t} (${i}): ${es.length?es.map(e=>e[1]+(e[2]?" — "+e[2]:"")+(e[3]?` [daftar ${e[3]}]`:"")).join(" / "):"— tidak ada —"}`}).join("\n");}
+ const item=d.newItem?Object.entries(d.newItem).filter(([k,v])=>v!==""&&v!==false).map(([k,v])=>`${k}: ${v}`).join("; "):"";
+ return [`## Usulan revisi\n`,`**Jenis:** ${KIND[d.kind]||d.kind}`,`**Target:** ${nm}`,
+  d.element?`**Elemen / path FHIR:** \`${d.element}\``:null,d.acuan?`**Versi acuan:** ${d.acuan}`:null,
+  cur?`\n**Kondisi sekarang di dokumentasi:**\n${cur}`:null,
+  item?`\n**${d.kind==="tambahpilihan"?"Pilihan baru":"Elemen baru"}:** ${item}`:null,
+  d.proposed?`\n**Usulan:**\n${d.proposed}`:null,d.reason?`\n**Alasan / rujukan:**\n${d.reason}`:null,
+  d.institution?`\n**Institusi pengusul:** ${d.institution}`:null,
+  `\n---`,`Dikirim dari halaman crosscheck · data dasar ${D.SNAP}`].filter(x=>x!==null).join("\n");}
+function revValid(d,msg){if(d.kind==="tambahpilihan"&&!(d.newItem&&d.newItem.code)){msg.textContent="Isi minimal kode pilihan baru.";return false;}
+ if(d.kind==="tambahelemen"&&!(d.newItem&&d.newItem.path)){msg.textContent="Isi path elemen baru.";return false;}
+ if(!d.newItem&&!d.proposed&&!d.reason){msg.textContent="Isi usulan atau alasan terlebih dahulu.";return false;}
+ try{localStorage.setItem("ss_inst",d.institution)}catch(_){}
+ return true;}
+document.addEventListener("click",e=>{const msg=document.getElementById("rf-msg");
+ if(e.target.id==="rf-csv"){const d=collectRev();if(!revValid(d,msg))return;
+  const q=x=>'"'+String(x==null?"":x).replace(/"/g,'""')+'"';
+  const item=d.newItem?Object.entries(d.newItem).filter(([k,v])=>v!==""&&v!==false).map(([k,v])=>k+": "+v).join("; "):"";
+  const AV=id=>(document.getElementById(id)||{}).value||"";
+  const row=[d.target,d.element,d.kind,[d.proposed,item,d.acuan?"acuan: "+d.acuan:""].filter(Boolean).join(" | "),d.reason,MYNAME(),d.institution,new Date().toISOString().slice(0,10),"terbuka",
+   AV("rf-aksi"),AV("rf-apath"),AV("rf-aold"),AV("rf-anew"),AV("rf-atuj")];
+  MYROWS.push(row);
+  const csv="\uFEFF"+[REVHDR.map(q).join(","),...MYROWS.map(r=>r.map(q).join(","))].join("\r\n");
+  const nm="revisi-"+((d.institution||"kontributor").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,30))+"-"+new Date().toISOString().slice(0,10)+".csv";
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));a.download=nm;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+  msg.textContent=MYROWS.length+" usulan dalam berkas "+nm+" — kirim berkas ini ke pengelola.";
+  if(window.claude){ // di halaman Claude unduhan diblokir: tampilkan teksnya agar bisa disalin
+   msg.textContent=MYROWS.length+" usulan. Unduhan tidak tersedia di halaman Claude — salin teks di bawah, simpan sebagai "+nm+", lalu unggah ke docs/revisi/ di GitHub.";
+   let ta=document.getElementById("rf-ta");if(!ta){ta=document.createElement("textarea");ta.id="rf-ta";ta.style.width="100%";ta.style.minHeight="120px";msg.after(ta);}
+   ta.value=csv;ta.select();}}
+ if(e.target.id==="rf-gh"){const d=collectRev();if(!revValid(d,msg))return;
+  const title=`[Usulan] ${d.target}${d.element?" · "+d.element:""} — ${KIND[d.kind]||d.kind}`;
+  const url=D.GH+"/issues/new?labels=usulan-revisi&title="+encodeURIComponent(title.slice(0,120))+"&body="+encodeURIComponent(revText(d).slice(0,6000));
+  window.open(url,"_blank","noopener");msg.textContent="Tab GitHub dibuka — periksa isinya lalu klik “Create”.";}
+ if(e.target.id==="rf-copy"){const d=collectRev();if(!revValid(d,msg))return;
+  const t=revText(d);(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>msg.textContent="Teks usulan disalin.",()=>{msg.textContent="Salin manual dari kotak di bawah.";
+   const ta=document.createElement("textarea");ta.value=t;ta.style.width="100%";ta.style.minHeight="140px";msg.after(ta);ta.select();});}});
 document.addEventListener("submit",async e=>{if(e.target.id!=="revf")return;e.preventDefault();const msg=document.getElementById("rf-msg");
  const doc={target:document.getElementById("rf-target").value,element:document.getElementById("rf-el").value,kind:document.getElementById("rf-kind").value,acuan:(document.getElementById("rf-acuan")||{}).value||"",
   proposed:document.getElementById("rf-prop").value.trim(),reason:document.getElementById("rf-reason").value.trim(),institution:document.getElementById("rf-inst").value.trim(),
@@ -402,9 +649,9 @@ document.addEventListener("click",async e=>{const b=e.target.closest("[data-rev]
 (async()=>{const c=window.claude;if(!c||!c.use)return;try{[DB,USER]=await Promise.all([c.use("db"),c.use("user")]);}catch(_){}
  if(USER){try{ME=await USER.id();CANEDIT=await USER.canEdit();}catch(_){}}
  if(!DB)return;
- DB.collection("revisions").orderBy("createdAt","desc").limit(500).onSnapshot(snap=>{REV=snap.docs.map(d=>({_id:d.id,...d.data()}));for(const k in RB)delete RB[k];REV.forEach(r=>{(RB[r.target]=RB[r.target]||[]).push(r)});
+ DB.collection("revisions").orderBy("createdAt","desc").limit(500).onSnapshot(snap=>{REV=snap.docs.map(d=>({_id:d.id,...d.data()}));rebuildRB();applyRevisions();
   const y=window.scrollY;render();window.scrollTo(0,y);renderDrawer();},()=>{});})();
-render();
+snapshot();render();loadCSVRev();
 </script>'''
-open(os.path.join(_ROOT,"docs","index.html"),"w").write(html.replace("__DATA__",D))
+open("crosscheck.html","w").write(html.replace("__DATA__",D))
 import os;print(os.path.getsize("crosscheck.html"))
