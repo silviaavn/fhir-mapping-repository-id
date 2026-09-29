@@ -23,10 +23,12 @@ Menyatukan playbook interoperabilitas SATUSEHAT dan lampirannya (yang di situs r
 | Playbook / use case | 30 (3 dikurasi manual: ANC, Rawat Jalan, HIV · 27 ekstraksi otomatis) |
 | Sumber PDF (dibaca dari Google Drive) | 6 (HIV, MTBS, Klaim, Mata, UBM, Rabies) |
 | Halaman lampiran terminologi per modul | 17 |
-| Variabel | 2.051 (226 dikurasi manual · 1.825 otomatis) |
+| Variabel | 2.023 (198 dikurasi manual · 1.825 otomatis) |
 | Konsep setelah deduplikasi | 1.416 |
 | Konsep yang muncul di ≥2 use case | 332 (134 di >2 use case) |
-| Status: Unik / Identik / Identik (disalin) | 1.073 / 131 / 14 |
+| Tahap yang hanya merujuk ke modul lain (judul + tautan) | 55 (12 ANC/HIV, 43 modul otomatis) |
+| Elemen pelengkap dari playbook lain (grup “Saling melengkapi”) | 197 baris di 119 variabel |
+| Status: Unik / Identik | 1.087 / 131 |
 | Status: Saling melengkapi | 96 |
 | Status perlu dicek: Kode sama, isi beda | 60 |
 | Status perlu dicek: Maksud sama, kode/struktur beda | 42 |
@@ -40,7 +42,7 @@ Menyatukan playbook interoperabilitas SATUSEHAT dan lampirannya (yang di situs r
 | Deskripsi variabel dari playbook / dibuat Claude | 536 / 1.515 |
 
 ## Yang sudah dikerjakan
-1. **Kurasi manual ANC, Rawat Jalan, HIV.** Elemen wajib per resource dilengkapi. Tahap ANC/HIV yang di playbook merujuk ke modul Rawat Jalan disalin dari RJ (status "Identik (disalin)").
+1. **Kurasi manual ANC, Rawat Jalan, HIV.** Elemen wajib per resource dilengkapi. Tahap yang di playbook hanya merujuk ke modul lain **tidak lagi disalin**: ditampilkan sebagai judul tahap + kutipan + tautan ke playbook yang dirujuk (baris “Mengikuti modul lain”). Karena itu status “Identik (disalin)” tidak ada lagi.
 2. **Crawl 30 modul + 17 lampiran + 6 PDF.** Hasilnya diparse otomatis: tabel baris, tabel kolom (termasuk header kolom di tengah tabel — perbaikan 19 Sep yang memulihkan ±94 baris pilihan, mis. Edukasi RANAP/GIGI/PKPR), dan lampiran bernomor.
 3. **Crosscheck konsep.** Pengelompokan memakai kode utama, nama variabel, dan pasangan manual. Nama yang sama tidak digabung bila kodenya berbeda atau resource-nya berbeda.
    - Semua variabel Procedure "Edukasi…" disatukan menjadi satu konsep (K-083), sehingga pilihannya tampil sebagai satu daftar gabungan.
@@ -63,7 +65,8 @@ Menyatukan playbook interoperabilitas SATUSEHAT dan lampirannya (yang di situs r
    - kode dan path tambahan dari Lampiran Standar Terminologi.
 7. **Deskripsi variabel (popover ⓘ).** Kalimat playbook yang menyebut variabel tersebut, atau deskripsi yang disusun Claude (diberi label "belum diverifikasi"), plus konteks tahap dari playbook.
 8. **Pencarian** mencakup isi daftar pilihan dan deskripsi. Kata yang cocok di-highlight. Di Konsolidasi, hasil ≤25 konsep otomatis terbuka.
-9. **Revisi kontributor** (resolve, usulan nilai, tambah pilihan, tambah elemen, catatan). Revisi mencatat nama dan institusi pengusul serta statusnya (terbuka/diterima/ditolak), dan dipisahkan dari data dasar SATUSEHAT.
+9. **Elemen pelengkap.** Pada konsep berstatus “Saling melengkapi”, elemen yang hanya ada di playbook lain ikut ditampilkan di halaman playbook yang kekurangan, ditandai “pelengkap” beserta sumbernya.
+10. **Revisi kontributor** (resolve, usulan nilai, tambah pilihan, tambah elemen, catatan). Revisi mencatat nama dan institusi pengusul serta statusnya (terbuka/diterima/ditolak), dan dipisahkan dari data dasar SATUSEHAT.
 
 ## Yang masih perlu dikerjakan
 | Prioritas | Pekerjaan | Skala |
@@ -78,6 +81,10 @@ Menyatukan playbook interoperabilitas SATUSEHAT dan lampirannya (yang di situs r
 | Sedang | Verifikasi deskripsi yang dibuat Claude, atau ganti dengan definisi resmi | 1.515 variabel |
 | Rendah | Rapikan hasil ekstraksi Lampiran Standar Terminologi untuk resource keuangan (Claim, Coverage*, ChargeItem): kolom system tercampur teks header; beberapa heading path yang terpotong baris belum terdeteksi | ±40 path |
 | Rendah | Otomatisasi pengecekan pembaruan situs SATUSEHAT (diff snapshot) | — |
+
+## Alur revisi kontributor
+
+Usulan dikirim sebagai berkas CSV (tombol **Unduh usulan (.csv)** di halaman), lalu diunggah pengelola ke `docs/revisi/` di GitHub. Halaman membaca semua CSV di folder itu saat dibuka. Baris yang mengisi kolom `aksi` (`ganti-nilai`, `pindah-konsep`, `tandai-status`, `tambah-pilihan`, `tambah-elemen`) diterapkan ke isi halaman begitu kolom `status` berisi `diterima`, dan status konsep dihitung ulang. Ringkasan Resource, Excel, dan JSON tetap versi bangunan terakhir.
 
 ## Catatan metode
 - Elemen generik (subject, encounter, performer, author, source, effectiveDateTime) ditampilkan, tetapi tidak dipakai untuk pencocokan.
