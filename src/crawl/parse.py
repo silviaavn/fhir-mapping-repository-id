@@ -1,6 +1,8 @@
-import json, re
-RAW=json.load(open('/home/claude/crawl/raw.json'))
-PDFJ=json.load(open('/mnt/user-data/outputs/satusehat_playbook_pdf_20260918.json'))['modules']
+import json, re, os
+_ROOT=os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+_D=lambda f: os.path.join(_ROOT,"data",f)
+RAW=json.load(open(_D('satusehat_playbook_raw_20260918.json')))
+PDFJ=json.load(open(_D('satusehat_playbook_pdf_20260918.json')))['modules']
 SHORT={"igd":"IGD","rawat-inap-new":"RANAP","kefarmasian":"FARMASI","data-kelahiran":"KELAHIRAN","inc":"INC","pnc":"PNC","rawat-jalan-gigi":"GIGI","gizi":"GIZI",
  "imunisasi-new":"IMUN","imunisasi-covid":"IMUNCOVID","mpdn":"MPDN","mtbs-prio":"MTBS","neonatus":"NEONATUS","pkpr-luar-gedung":"PKPR","klaim":"KLAIM","registrasi-jantung":"JANTUNG",
  "kanker":"KANKER","mata":"MATA","stroke":"STROKE","uronefro":"URONEFRO","rujukan-spesimen":"RUJSPES","shk":"SHK","skrining-ptm":"PTM","tuberkulosis":"TB","tumbuh-kembang-new":"TUMBANG","ubm":"UBM","zoonosis-rabies":"RABIES"}
@@ -181,5 +183,5 @@ for url,page in RAW["pages"].items():
         src=url
     B.finalize()
     MODS[code]=dict(slug=slug,title=page.get("title") or code,url=url,src=src,V=B.V,mand={k:sorted(v) for k,v in mand.items()},lamp={str(k):v for k,v in lamp.items()})
-json.dump(MODS,open('/home/claude/crawl/auto.json','w'),ensure_ascii=False)
+json.dump(MODS,open(_D('satusehat_playbook_auto_extract.json'),'w'),ensure_ascii=False)
 for c,m in MODS.items(): print(c,len(m["V"]),sum(len(v["el"]) for v in m["V"]),"lamp",len(m["lamp"]),"mand",len(m["mand"]))
