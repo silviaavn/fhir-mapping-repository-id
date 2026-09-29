@@ -1,7 +1,9 @@
 # Element-level summaries: per concept group, per resource (Ringkasan Resource), std terminology, descriptions
-import re, json
+import re, json, os
 import model as M
 from model import ALL, G, LISTS, npath, BYID
+_ROOT=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_D=lambda f: os.path.join(_ROOT,"data",f)
 
 TT=dict(M.TITLES)
 CODED_SUFFIX=(".system",".code",".display")
@@ -203,7 +205,7 @@ for v in ALL:
             for l in plain[k]["lists"]: Pp["lists"].setdefault(l,set()).add(v["id"])
 
 # ---------------- Lampiran Standar Terminologi ----------------
-STD=json.load(open("/home/claude/term/std.json"))
+STD=json.load(open(_D("satusehat_standar_terminologi_v10.3.json")))
 def nk(p):
     p=re.sub(r"\[[^\]]*\]","",p).replace("extension:","extension.")
     p=re.sub(r"\.coding\b","",p)
@@ -276,9 +278,9 @@ for rt,R in sorted(RS.items()):
     RSOUT[rt]={"nv":nv,"titles":titles,"tv":tv,"els":els,"unused":[c for c in canon if c not in used],"core":core,"miss":miss,"stdonly":R.get("stdonly",[]),"canon":bool(canon)}
 
 # ---------------- Deskripsi variabel ----------------
-RAW=json.load(open("/home/claude/crawl/raw.json"))
-PDFJ=json.load(open("/mnt/user-data/outputs/satusehat_playbook_pdf_20260918.json"))["modules"]
-AUTO=json.load(open("/home/claude/crawl/auto.json"))
+RAW=json.load(open(_D("satusehat_playbook_raw_20260918.json")))
+PDFJ=json.load(open(_D("satusehat_playbook_pdf_20260918.json")))["modules"]
+AUTO=json.load(open(_D("satusehat_playbook_auto_extract.json")))
 URL={"ANC":"https://satusehat.kemkes.go.id/platform/docs/id/interoperability/anc/","RJ":"https://satusehat.kemkes.go.id/platform/docs/id/interoperability/rme-rawat-jalan/"}
 for c,m in AUTO.items(): URL[c]=m["url"]
 BOIL=re.compile(r"(Berikut( ini)? (adalah )?pemetaan|Penjelasan tipe mandatoris|Postman|Pemetaan Nilai|dapat dilihat (pada|di) (tabel|gambar)|Silakan klik|Terminologi spesifik yang digunakan|Setiap terdapat simbol)",re.I)

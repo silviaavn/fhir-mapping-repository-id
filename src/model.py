@@ -1,5 +1,7 @@
-import re, copy, json
+import re, copy, json, os
 import data3, rj, hiv
+_ROOT=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_D=lambda f: os.path.join(_ROOT,"data",f)
 TITLES=[("ANC","Antenatal Care (ANC)"),("RJ","Resume Medis Rawat Jalan"),("HIV","HIV (Fase 1)")]
 SRC={"HIV":"Playbook Modul HIV v1.0 (PDF, header versi 1.3 / 15 Agu 2024; halaman web disunting 8 Des 2024)","ANC":"Playbook ANC (2 Okt 2025) + Lampiran Terminologi ANC (1 Nov 2024)","RJ":"Playbook Resume Medis Rawat Jalan + Lampiran Terminologi RME Rawat Jalan (7 Okt 2024)"}
 
@@ -51,7 +53,7 @@ for v in rj.V: v["title"]="RJ"
 for v in HIVL: v["title"]="HIV"
 ALL=ANC+rj.V+HIVL
 # ---------- auto-extracted modules ----------
-AUTO=json.load(open("/home/claude/crawl/auto.json"))
+AUTO=json.load(open(_D("satusehat_playbook_auto_extract.json")))
 AUTOLISTS={}
 for code,md in AUTO.items():
     TITLES.append((code,md["title"]))
@@ -307,7 +309,7 @@ for g in G:
     g["rows"]=list(rows.values())
 
 import json as _j
-HL_=_j.load(open("/home/claude/hiv/lists.json"))
+HL_=_j.load(open(_D("hiv_lists.json")))
 LISTS={"icd":dict(title="Kode ICD-10 komplikasi/penyulit kehamilan (Lampiran 2 ANC)",cols=["code","display","Deskripsi","Trimester"],rows=[list(r) for r in data3.ICD]),
  "kfa":dict(title="Struktur kamus KFA (Lampiran RME Rawat Jalan + playbook)",cols=["Tag","Deskripsi","Format kode","Tata cara penamaan","Contoh"],rows=[
    ["BZA","Bahan Zat Aktif","91xxxxxx","Nama molekul kimia","Paracetamol"],["POV","Produk Obat Virtual","92xxxxxx","Zat aktif + kekuatan + satuan + bentuk sediaan","Paracetamol 500 mg Tablet"],

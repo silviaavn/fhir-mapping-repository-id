@@ -9,7 +9,9 @@ G=[dict(id=g["id"],label=g["label"],status=g["status"],note=g["note"],m=[x["id"]
         els=[pk(E) for E in g["els"]],ex=[[x["el"],x["kind"],x["parts"]] for x in g["expl"]]) for g in M.G]
 DS={k:[1 if d["src"]=="playbook" else 0,d["t"],d["ctx"]] for k,d in M2.DESC.items()}
 import markdown
-DOC=markdown.markdown(open('/home/claude/doc/DOKUMENTASI.md').read(),extensions=['tables'])
+import os
+_ROOT=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DOC=markdown.markdown(open(os.path.join(_ROOT,"docs","DOKUMENTASI.md")).read(),extensions=['tables'])
 D=json.dumps(dict(DOC=DOC,V=V,G=G,L=M.LISTS,T=[list(t) for t in M.TITLES],S=M.SRC,C=M.CODEVARS,RS=M2.RSOUT,DS=DS,SNAP='SATUSEHAT snapshot 18 Sep 2026',
    STD='Dokumen Lampiran Standar Terminologi SATUSEHAT v10.3 (30 Jun 2026)'),ensure_ascii=False,separators=(",",":"))
 html=r'''<title>SATUSEHAT Crosscheck ANC–RJ</title>
@@ -404,5 +406,5 @@ document.addEventListener("click",async e=>{const b=e.target.closest("[data-rev]
   const y=window.scrollY;render();window.scrollTo(0,y);renderDrawer();},()=>{});})();
 render();
 </script>'''
-open("crosscheck.html","w").write(html.replace("__DATA__",D))
+open(os.path.join(_ROOT,"docs","index.html"),"w").write(html.replace("__DATA__",D))
 import os;print(os.path.getsize("crosscheck.html"))

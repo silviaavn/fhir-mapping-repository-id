@@ -191,4 +191,6 @@ for sh,ref,tsh,tgt in links:
     elif tsh=="LIST": loc=f"'{LSHEET}'!A{LPOS[tgt]}"
     else: loc=f"'{tsh}'!A{tgt}"
     c=wb[sh][ref]; c.hyperlink=Hyperlink(ref=ref,location=loc); c.font=Font(name=F,size=9,color="0563C1",underline="single",bold=c.font.bold)
-out="/mnt/user-data/outputs/SATUSEHAT_Semua_UseCase_Crosscheck.xlsx"; wb.save(out); print(out, {ws.title:ws.max_row for ws in wb})
+import os
+out=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),"data","SATUSEHAT_Semua_UseCase_Crosscheck.xlsx")
+wb.save(out); print(out, {ws.title:ws.max_row for ws in wb})

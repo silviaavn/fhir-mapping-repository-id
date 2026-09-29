@@ -1,7 +1,8 @@
 # HIV (Fase 1) — Playbook Modul HIV (PDF di Google Drive, header "versi 1.3, 15 Agustus 2024")
-import json
+import json, os
 from rj import co, opts, LN, SN, UC, HL, OC, KM, PAT, ENC, PR
-LISTS=json.load(open('/home/claude/hiv/lists.json'))
+_ROOT=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+LISTS=json.load(open(os.path.join(_ROOT,"data","hiv_lists.json")))
 V=[]
 def add(tahap,kel,var,res,el,cat="",frek=""): V.append(dict(tahap=tahap,kel=kel,var=var,res=res,el=el,cat=cat,frek=frek))
 V3=HL+"v3-ObservationInterpretation"; CT=KM+"/CodeSystem/clinical-term"; EX=KM+"/CodeSystem/examination"; Q23="https://fhir.kemkes.go.id/Questionnaire/Q0023"
