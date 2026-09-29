@@ -17,6 +17,8 @@ Punya akun GitHub gratis? Tombol **Kirim lewat GitHub Issue** di formulir yang s
 1. Buka folder [`docs/revisi/`](docs/revisi/) di repo ini → **Add file → Upload files** → pilih berkas CSV dari kontributor → **Commit changes**.
 2. Tunggu ±1 menit, muat ulang halaman. Revisi langsung muncul: jumlahnya di tombol **Revisi** tiap variabel, isinya di menu **Revisi kontributor**.
 
+Baris yang mengisi kolom `aksi` akan **mengubah isi halaman** (ganti nilai/kode, pindah konsep, tandai status, tambah pilihan/elemen) begitu kolom `status` diisi `diterima`; status konsep dan perbandingan antar use case dihitung ulang otomatis. Rinciannya di [`docs/revisi/README.md`](docs/revisi/README.md).
+
 Tidak ada langkah build dan tidak ada berkas yang perlu ditimpa — halaman membaca semua CSV di folder itu saat dibuka. Nama berkas bebas asal belum dipakai. Untuk memutuskan usulan, buka CSV-nya di GitHub, klik ikon pensil, ubah kolom `status` menjadi `diterima` atau `ditolak`, lalu commit.
 
 Format kolom CSV dijelaskan di [`docs/revisi/README.md`](docs/revisi/README.md), dengan contoh di `docs/revisi/TEMPLATE.csv`.
