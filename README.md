@@ -5,11 +5,21 @@ Konsolidasi seluruh playbook interoperabilitas SATUSEHAT beserta lampiran termin
 Di situs resminya, playbook dan lampiran terminologi terpisah halaman dan formatnya berulang. Repo ini menyatukannya, lalu menambahkan lapisan crosscheck: variabel yang sama di beberapa use case dipasangkan, perbedaan nilainya dijelaskan per elemen, dan setiap resource FHIR diringkas (elemen apa yang biasanya ada, kode apa yang dipakai, kode mana dari Lampiran Standar Terminologi yang belum dipakai playbook mana pun).
 
 ## Buka halamannya
+
 | Cara | Untuk siapa |
 |---|---|
-| **GitHub Pages** — https://silviaavn.github.io/fhir-mapping-repository-id/ | Siapa pun. Semua tampilan jalan (per use case, Konsolidasi, Ringkasan Resource, Dokumentasi, pencarian). Tombol Revisi hanya bisa dibaca, tidak bisa menyimpan. |
-| **Halaman di Claude** (privat, lihat CONTRIBUTING) | Kontributor yang ingin menyimpan usulan revisi. |
+| **GitHub Pages** — <https://silviaavn.github.io/fhir-mapping-repository-id/> | Siapa pun. Semua tampilan jalan (per use case, Konsolidasi, Ringkasan Resource, Dokumentasi, pencarian). Tombol "Revisi" di sini dipakai untuk menyusun usulan lalu mengunduhnya sebagai CSV. |
+| **Halaman di Claude** (privat) | Pengelola, untuk revisi yang disimpan langsung di halaman. |
 | `data/SATUSEHAT_Semua_UseCase_Crosscheck.xlsx` | Yang lebih nyaman bekerja di Excel. |
+
+## Alur revisi (ringkas)
+
+1. Kontributor membuka halaman, klik **Revisi** pada variabel/konsep, isi usulan, lalu klik **Unduh usulan (.csv)**. Tanpa akun Claude maupun GitHub.
+2. Berkas CSV itu dikirim ke pengelola.
+3. Pengelola mengunggahnya ke [`docs/revisi/`](docs/revisi/) lewat **Add file → Upload files** di GitHub.
+4. Halaman membaca semua CSV di folder itu setiap kali dibuka — revisi langsung tampil, tanpa build ulang. Lihat menu **Revisi kontributor** di halaman.
+
+Detail format dan cara menandai usulan diterima/ditolak: [`docs/revisi/README.md`](docs/revisi/README.md).
 
 ## Isi
 
