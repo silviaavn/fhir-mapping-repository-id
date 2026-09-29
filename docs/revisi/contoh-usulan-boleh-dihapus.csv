@@ -1,0 +1,2 @@
+target,elemen,jenis,usulan,alasan,kontributor,institusi,tanggal,status
+K-083,Procedure.code.coding,resolve,"Contoh baris uji: samakan kode edukasi ke KPTL 10913 + SNOMED seperti modul Rawat Jalan","Contoh baris uji dari pengelola untuk memastikan alur unggah CSV berjalan. Berkas ini boleh dihapus.",Contoh Pengusul,Contoh Institusi,2026-09-29,terbuka
