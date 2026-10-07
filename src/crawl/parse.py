@@ -1,11 +1,15 @@
-import json, re, os
+import json, re
+import os
 _ROOT=os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 _D=lambda f: os.path.join(_ROOT,"data",f)
-RAW=json.load(open(_D('satusehat_playbook_raw_20260918.json')))
-PDFJ=json.load(open(_D('satusehat_playbook_pdf_20260918.json')))['modules']
+RAW=json.load(open(_D('satusehat_playbook_raw_20261007.json')))
+PDFJ=json.load(open(_D('satusehat_playbook_pdf_20261007.json')))['modules']
 SHORT={"igd":"IGD","rawat-inap-new":"RANAP","kefarmasian":"FARMASI","data-kelahiran":"KELAHIRAN","inc":"INC","pnc":"PNC","rawat-jalan-gigi":"GIGI","gizi":"GIZI",
  "imunisasi-new":"IMUN","imunisasi-covid":"IMUNCOVID","mpdn":"MPDN","mtbs-prio":"MTBS","neonatus":"NEONATUS","pkpr-luar-gedung":"PKPR","klaim":"KLAIM","registrasi-jantung":"JANTUNG",
- "kanker":"KANKER","mata":"MATA","stroke":"STROKE","uronefro":"URONEFRO","rujukan-spesimen":"RUJSPES","shk":"SHK","skrining-ptm":"PTM","tuberkulosis":"TB","tumbuh-kembang-new":"TUMBANG","ubm":"UBM","zoonosis-rabies":"RABIES"}
+ "kanker":"KANKER","mata":"MATA","stroke":"STROKE","uronefro":"URONEFRO","rujukan-spesimen":"RUJSPES","shk":"SHK","skrining-ptm":"PTM","tuberkulosis":"TB","tumbuh-kembang-new":"TUMBANG","ubm":"UBM","zoonosis-rabies":"RABIES","mcu":"MCU","tanda-tangan-elektronik":"TTE"}
+HTMLLAMP={"mcu"}
+FIXWRAP={"mcu"}
+TAHAPFIX={"mcu":{"5":"5. Pengiriman Data Pemeriksaan Kesehatan Jiwa","6":"6. Pengiriman Data Pemeriksaan Penunjang Non Laboratorium","7":"7. Pengiriman Data Pemeriksaan Penunjang Radiologi","8":"8. Pengiriman Data Pemeriksaan Penunjang Laboratorium","9":"9. Pengiriman Data Rencana Rawat Pasien","11":"11. Pengiriman Data Tindakan/Prosedur Medis","12":"12. Pengiriman Data Cara Keluar dari Rumah Sakit","14":"14. Pengiriman Data Resume MCU"}}
 LAMPMAP={"rawat-inap-new":"rawat-inap-fase-2","neonatus":"neonatus-prio","stroke":"registrasi-stroke"}
 PATH=re.compile(r"^\*?(Patient|Encounter|Observation|Condition|Procedure|ServiceRequest|Specimen|DiagnosticReport|MedicationRequest|MedicationDispense|MedicationStatement|MedicationAdministration|Medication|Immunization|ImmunizationRecommendation|QuestionnaireResponse|EpisodeOfCare|CarePlan|Composition|ClinicalImpression|AllergyIntolerance|FamilyMemberHistory|RiskAssessment|Goal|NutritionOrder|ImagingStudy|Substance|Location|Organization|Practitioner|RelatedPerson|Coverage|Claim|ClaimResponse|Account|ChargeItem|Invoice|DocumentReference|Consent|Device|Appointment|Task|ServiceRequest|CareTeam|Questionnaire|Group|Flag|DetectedIssue|AdverseEvent|Media|Binary|Bundle|PractitionerRole|HealthcareService|EpisodeofCare|RiskAssesment|Specimen)\s*\.",re.I)
 def clean(c): return re.sub(r"\{(cs|rs)\d+\}","",c or "").strip()
@@ -18,8 +22,8 @@ def stripnum(s): return re.sub(r"^\s*(\d+(\.\d+)*\.?|[a-z]\.|[a-z]\))\s+","",s).
 SKIPH=re.compile(r"^(Pemetaan Variabel|Elemen/Path|Elemen / Path|Resource |Pemetaan variabel|Nama Variabel:)",re.I)
 
 class Builder:
-    def __init__(s,code):
-        s.code=code; s.V=[]; s.cur=None; s.tahap=""; s.kel=""; s.pendhdr=None
+    def __init__(s,code,fixwrap=False):
+        s.code=code; s.V=[]; s.cur=None; s.tahap=""; s.kel=""; s.pendhdr=None; s.fixwrap=fixwrap
     def new_var(s,name,kel=None):
         s.cur=dict(tahap=s.tahap or "—",kel=kel if kel is not None else s.kel,var=name[:140],res="",el=[],cat="",frek="",auto=True,_multi=[])
         s.V.append(s.cur)
@@ -108,6 +112,21 @@ class Builder:
                 s.labels(r[1:]); continue
             if len(ne)==1 and not first=="" :
                 t=ne[0]
+                if s.fixwrap and len(t)<60 and t[0].islower() and re.match(r"^[A-Za-z0-9\-\./:_%]+\s+[a-z]\.\s",t):
+                    frag,rest=t.split(" ",1)
+                    if s.cur and s.cur["_multi"]:
+                        row=s.cur["_multi"][-1]; row[1][-1]=(row[1][-1]+frag)
+                        s.cur["cat"]=(s.cur["cat"]+" " if s.cur["cat"] else "")+rest[:300]
+                    continue
+                if s.fixwrap and len(t)<60 and t[0].islower() and not (s.cur and s.cur["_multi"]):
+                    continue   # orphan wrapped fragment after a section break
+                if s.fixwrap and s.cur and s.cur["_multi"] and len(t)<60:
+                    # PDF page-break: a wrapped value fragment, not a new variable
+                    if re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9\-\./:_%]*",t) and (t[0].islower() or t[0].isdigit()) and not re.match(r"^\d+[\.\)]",t):
+                        row=s.cur["_multi"][-1]; row[1][-1]=(row[1][-1]+t); continue
+                    # wrapped continuation of the previous variable name / description
+                    if t[0].islower() and (" " in t or t.endswith("?")):
+                        s.cur["var"]=(s.cur["var"]+" "+t)[:140]; continue
                 if SKIPH.match(t) or len(t)>160: 
                     if len(t)>160 and s.cur: s.cur["cat"]=(s.cur["cat"]+" " if s.cur["cat"] else "")+t[:300]
                     continue
@@ -139,7 +158,7 @@ MODS={}
 for url,page in RAW["pages"].items():
     slug=url.rstrip("/").split("/")[-1]
     if slug not in SHORT: continue
-    code=SHORT[slug]; B=Builder(code); mand={}
+    code=SHORT[slug]; B=Builder(code,fixwrap=slug in FIXWRAP); mand={}
     last_h=""
     if slug in PDFJ:  # PDF-based module
         pj=PDFJ[slug]; inlamp=False; lists={}; ln=0; curlist=None
@@ -168,6 +187,9 @@ for url,page in RAW["pages"].items():
                 else:
                     B.table(t)
         lamp={k:tuple(v) for k,v in lists.items()}
+        if slug in HTMLLAMP:
+            ls=LAMPMAP.get(slug,slug); lp=[v for k,v in RAW["lampiran"].items() if k.rstrip("/").split("/")[-1]==ls]
+            if lp: lamp=lamp_lists(lp[0],code)
         src="PDF Google Drive: "+pj["file"]
     else:
         for b in page["blocks"]:
@@ -181,6 +203,11 @@ for url,page in RAW["pages"].items():
         ls=LAMPMAP.get(slug,slug); lp=[v for k,v in RAW["lampiran"].items() if k.rstrip("/").split("/")[-1]==ls]
         lamp=lamp_lists(lp[0],code) if lp else {}
         src=url
+    if slug in TAHAPFIX:
+        TF=TAHAPFIX[slug]
+        for v in B.V:
+            m=re.match(r"^(\d{1,2})\.",v["tahap"])
+            if m and m.group(1) in TF: v["tahap"]=TF[m.group(1)]
     B.finalize()
     MODS[code]=dict(slug=slug,title=page.get("title") or code,url=url,src=src,V=B.V,mand={k:sorted(v) for k,v in mand.items()},lamp={str(k):v for k,v in lamp.items()})
 json.dump(MODS,open(_D('satusehat_playbook_auto_extract.json'),'w'),ensure_ascii=False)
