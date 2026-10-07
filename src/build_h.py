@@ -16,7 +16,7 @@ REF=[dict(t=r["title"],tahap=r["tahap"],isi=r.get("isi",""),note=r["note"],kutip
      tg=[[x["code"],x["judul"],x["url"]] for x in r["targets"]]) for r in M.REFS]
 HH=[dict(id=h["id"],label=h["label"],m=h["m"],titles=h["titles"],nchild=h["nchild"],
      rows=[dict(label=r["label"],gid=r["gid"],by=r["by"]) for r in h["rows"]]) for h in HI.H]
-D=json.dumps(dict(DOC=DOC,REF=REF,H=HH,HSTAT=HI.STAT,V=V,G=G,L=M.LISTS,T=[list(t) for t in M.TITLES],S=M.SRC,C=M.CODEVARS,RS=M2.RSOUT,DS=DS,SNAP='SATUSEHAT snapshot 18 Sep 2026',
+D=json.dumps(dict(DOC=DOC,REF=REF,H=HH,HSTAT=HI.STAT,V=V,G=G,L=M.LISTS,T=[list(t) for t in M.TITLES],S=M.SRC,C=M.CODEVARS,RS=M2.RSOUT,DS=DS,SNAP='SATUSEHAT snapshot 18 Sep 2026; MCU & TTE 7 Okt 2026',
    STD='Dokumen Lampiran Standar Terminologi SATUSEHAT v10.3 (30 Jun 2026)',
    GH='https://github.com/silviaavn/fhir-mapping-repository-id'),ensure_ascii=False,separators=(",",":"))
 html=r'''<title>Crosscheck Playbook SATUSEHAT</title>

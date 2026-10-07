@@ -1,4 +1,7 @@
 import re, copy, json
+import os
+_ROOT=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_D=lambda f: os.path.join(_ROOT,"data",f)
 import data3, rj, hiv
 TITLES=[("ANC","Antenatal Care (ANC)"),("RJ","Resume Medis Rawat Jalan"),("HIV","HIV (Fase 1)")]
 SRC={"HIV":"Playbook Modul HIV v1.0 (PDF, header versi 1.3 / 15 Agu 2024; halaman web disunting 8 Des 2024)","ANC":"Playbook ANC (2 Okt 2025) + Lampiran Terminologi ANC (1 Nov 2024)","RJ":"Playbook Resume Medis Rawat Jalan + Lampiran Terminologi RME Rawat Jalan (7 Okt 2024)"}
@@ -50,11 +53,11 @@ for v in rj.V: v["title"]="RJ"
 for v in HIVL: v["title"]="HIV"
 ALL=ANC+rj.V+HIVL
 # ---------- auto-extracted modules ----------
-AUTO=json.load(open("/home/claude/crawl/auto.json"))
+AUTO=json.load(open(_D('satusehat_playbook_auto_extract.json')))
 AUTOLISTS={}
 for code,md in AUTO.items():
     TITLES.append((code,md["title"]))
-    SRC[code]=("Ekstraksi otomatis dari "+md["src"]+" (18 Sep 2026) — belum dicek manual")
+    SRC[code]=("Ekstraksi otomatis dari "+md["src"]+" ("+{"MCU":"7 Okt 2026","TTE":"7 Okt 2026"}.get(code,"18 Sep 2026")+") — belum dicek manual")
     mand={}
     for p in [x for ps in md["mand"].values() for x in ps]:
         mand.setdefault(p.split(".")[0],set()).add(re.sub(r"\[(i|\d)\]","",p))
@@ -79,8 +82,8 @@ for code,md in AUTO.items():
         v2["cat"]=("Ekstraksi otomatis — belum dicek manual. "+(v.get("cat") or "")).strip()
         ALL.append(v2)
 # ---------- tahap modul otomatis yang hanya merujuk ke modul lain ----------
-_RAW=json.load(open("/home/claude/crawl/raw.json"))
-_PDFJ=json.load(open("/mnt/user-data/outputs/satusehat_playbook_pdf_20260918.json"))["modules"]
+_RAW=json.load(open(_D('satusehat_playbook_raw_20261007.json')))
+_PDFJ=json.load(open(_D('satusehat_playbook_pdf_20261007.json')))["modules"]
 _TGT=[(re.compile(r"(Resume Medis)?\s*Rawat Jalan",re.I),"RJ","Resume Medis Rawat Jalan",RJURL),
       (re.compile(r"\bIGD\b|Gawat Darurat",re.I),"IGD","Pelayanan Instalasi Gawat Darurat (IGD)",""),
       (re.compile(r"Rawat Inap",re.I),"RANAP","Rawat Inap",""),
